@@ -56,12 +56,14 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def prevhash(self):
-        resp = (yield self._call('getwork', []))
+        resp = (yield self._call('getblocktemplate', []))
         try:
-            defer.returnValue(json.loads(resp)['result']['data'][8:72])
+            print(json.loads(resp)['result']['previousblockhash'])
+            defer.returnValue(json.loads(resp)['result']['previousblockhash'])
         except Exception as e:
             log.exception("Cannot decode prevhash %s" % str(e))
             raise
+
 
     @defer.inlineCallbacks
     def validateaddress(self, address):
