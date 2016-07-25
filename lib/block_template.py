@@ -1,15 +1,18 @@
 import StringIO
 import binascii
 import struct
-
+import json
 import util
 import merkletree
 import halfnode
+from mining.interfaces import Interfaces
 from coinbasetx import CoinbaseTransaction
 
 # Remove dependency to settings, coinbase extras should be
 # provided from coinbaser
 from stratum import settings
+import stratum.logger
+log = stratum.logger.get_logger('block_template')
 
 class BlockTemplate(halfnode.CBlock):
     '''Template is used for generating new jobs for clients.
@@ -18,7 +21,7 @@ class BlockTemplate(halfnode.CBlock):
 
     coinbase_transaction_class = CoinbaseTransaction
 
-    def __init__(self, timestamper, coinbaser, job_id):
+    def __init__(self, timestamper, coinbaser, job_id, rsk=None):
         super(BlockTemplate, self).__init__()
 
         self.job_id = job_id
@@ -32,6 +35,8 @@ class BlockTemplate(halfnode.CBlock):
         self.target = 0
         #self.coinbase_hex = None
         self.merkletree = None
+        if rsk != None:
+            self.rsk_flag = True
 
         self.broadcast_args = []
 
@@ -42,13 +47,16 @@ class BlockTemplate(halfnode.CBlock):
 
     def fill_from_rpc(self, data):
         '''Convert getblocktemplate result into BlockTemplate instance'''
-
         #txhashes = [None] + [ binascii.unhexlify(t['hash']) for t in data['transactions'] ]
         txhashes = [None] + [ util.ser_uint256(int(t['hash'], 16)) for t in data['transactions'] ]
         mt = merkletree.MerkleTree(txhashes)
 
-        coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
-                        data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS)
+        if 'rsk_flag' in data and 'rsk_header' in data and data['rsk_header'] != None:
+            coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
+                            data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS, data)
+        else:
+            coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
+                            data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS)
 
         self.height = data['height']
         self.nVersion = data['version']
@@ -67,7 +75,11 @@ class BlockTemplate(halfnode.CBlock):
         self.curtime = data['curtime']
         self.timedelta = self.curtime - int(self.timestamper.time())
         self.merkletree = mt
-        self.target = util.uint256_from_compact(self.nBits)
+        if 'rsk_flag' in data:
+            self.target = int(data['rsk_diff'], 16)
+            print "BLOCK TEMPLATE TARGET: %s" % self.target
+        else:
+            self.target = util.uint256_from_compact(self.nBits)
 
         # Reversed prevhash
         self.prevhash_bin = binascii.unhexlify(util.reverse_hash(data['previousblockhash']))
@@ -90,13 +102,21 @@ class BlockTemplate(halfnode.CBlock):
         may receive the same params, because they include
         their unique extranonce1 into the coinbase, so every
         coinbase_hash (and then merkle_root) will be unique as well.'''
+        logid = util.id_generator()
+        start = Interfaces.timestamper.time()
         job_id = self.job_id
         prevhash = binascii.hexlify(self.prevhash_bin)
-        (coinb1, coinb2) = [ binascii.hexlify(x) for x in self.vtx[0]._serialized ]
-        merkle_branch = [ binascii.hexlify(x) for x in self.merkletree._steps ]
+        (coinb1, coinb2) = [binascii.hexlify(x) for x in self.vtx[0]._serialized]
+        merkle_branch = [binascii.hexlify(x) for x in self.merkletree._steps]
         version = binascii.hexlify(struct.pack(">i", self.nVersion))
         nbits = binascii.hexlify(struct.pack(">I", self.nBits))
         ntime = binascii.hexlify(struct.pack(">I", self.curtime))
+        log.info(json.dumps({"uuid" : logid, "start" : start, "elapsed" :  Interfaces.timestamper.time() - start, "rsk" : "[RSKLOG]",
+                             "tag" : "[BBCARG]", "data" : {"job_id" : job_id, "prevhash" : prevhash,
+                             "coinb1" : coinb1, "coinb2" : coinb2, "merkle_branch" : merkle_branch, "version" : version,
+                             "nbits" : nbits, "ntime" : ntime}}))
+        #log.info("%s - [RSKLOG] - [BBCARG] - %s - %s - Arguments: job_id: %s, prevhash: %s, coinb1: %s, coinb2: %s, merkle_branch: %s, version: %s, nbits: %s, ntime: %s",
+        #         logid, start, Interfaces.timestamper.time() - start, job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime)
         clean_jobs = True
 
         return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)

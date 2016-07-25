@@ -1,4 +1,5 @@
 import weakref
+import json
 import binascii
 import util
 import StringIO
@@ -30,7 +31,7 @@ class TemplateRegistry(object):
     service and implements block validation and submits.'''
 
     def __init__(self, block_template_class, coinbaser, bitcoin_rpc, instance_id,
-                 on_template_callback, on_block_callback):
+                 on_template_callback, on_block_callback, rootstock_rpc=None):
         self.prevhashes = {}
         self.jobs = weakref.WeakValueDictionary()
 
@@ -41,6 +42,8 @@ class TemplateRegistry(object):
         self.coinbaser = coinbaser
         self.block_template_class = block_template_class
         self.bitcoin_rpc = bitcoin_rpc
+        if rootstock_rpc != None:
+            self.rootstock_rpc = rootstock_rpc
         self.on_block_callback = on_block_callback
         self.on_template_callback = on_template_callback
 
@@ -103,6 +106,53 @@ class TemplateRegistry(object):
         #from twisted.internet import reactor
         #reactor.callLater(10, self.on_block_callback, new_block)
 
+    def _rsk_genheader(self, bhfmm):
+        '''
+        Helper function for generating the rsk header in the expected format
+        '''
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKGNH]",
+                "data" : {"bhfmm" : bhfmm, "hdrbh" : binascii.hexlify(str("RSKBLOCK:" + bhfmm))}, "uuid" : util.id_generator()}))
+        return "RSKBLOCK:" + binascii.unhexlify(bhfmm[2:])
+        #return binascii.unhexlify(str("RSKBLOCK:" + bhfmm))
+
+    def _rsk_fill_data(self, data):
+        '''
+        Helper function for filling out the Bitcoin RPCs RSK data
+        '''
+        start = Interfaces.timestamper.time()
+        logid = util.id_generator()
+        self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
+        self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+        self.rootstock_rpc.rsk_last_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+        self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
+        self.rootstock_rpc.rsk_last_parent_hash = data['parentBlockHash']
+        self.rootstock_rpc.rsk_diff = data['target']
+        self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
+        self.rootstock_rpc.rsk_notify = data['notify']
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[RSKFLL]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start,
+                             "data" : util.convert(data), "rsk_header" : util.uint256_from_str(self.rootstock_rpc.rsk_header)}))
+
+    def _rsk_getwork(self, result):
+        #print "---------------------------"
+        #print "RSK_GETWORK RESULTS: "
+        #print result
+        #print result['blockHashForMergedMining']
+        #print "END RSK_GETWORK RESULTS: "
+
+        if self.rootstock_rpc.rsk_blockhashformergedmining is None:
+            self._rsk_fill_data(result)
+        elif self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
+            pass
+        else:
+            self._rsk_fill_data(result)
+
+    def _rsk_getwork_err(self, err):
+        print "---------------------------"
+        print "ERROR - RSK_GETWORK - ERROR: "
+        print err
+        print "END   - RSK_GETWORK -   END: "
+        print "---------------------------"
+
     def update_block(self):
         '''Registry calls the getblocktemplate() RPC
         and build new block template.'''
@@ -114,6 +164,11 @@ class TemplateRegistry(object):
         self.update_in_progress = True
         self.last_update = Interfaces.timestamper.time()
 
+        if self.rootstock_rpc != None:
+            rsk = self.rootstock_rpc.getwork()
+            rsk.addCallback(self._rsk_getwork)
+            rsk.addErrback(self._rsk_getwork_err)
+
         d = self.bitcoin_rpc.getblocktemplate()
         d.addCallback(self._update_block)
         d.addErrback(self._update_block_failed)
@@ -124,14 +179,24 @@ class TemplateRegistry(object):
 
     def _update_block(self, data):
         start = Interfaces.timestamper.time()
+        logid = util.id_generator()
 
-        template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
+        if self.rootstock_rpc != None and self.rootstock_rpc.rsk_header != None:
+            template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
+            #print "------ RSK BLOCK ------"
+            data['rsk_flag'] = True
+            data['rsk_diff'] = self.rootstock_rpc.rsk_diff
+            data['rsk_header'] = self.rootstock_rpc.rsk_header
+            #print data
+            #print "---- END RSK BLOCK ----"
+        else:
+            template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         template.fill_from_rpc(data)
         self.add_template(template)
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTCWKR]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
         self.update_in_progress = False
         return data
 
@@ -172,13 +237,19 @@ class TemplateRegistry(object):
             - difficulty - decimal number from session, again no checks performed
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
-
+        logid = util.id_generator()
+        start = Interfaces.timestamper.time()
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "start" : start}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
 
         # Check for job
         job = self.get_job(job_id)
+        print "------ ## SUBMIT_SHARE ## ------"
+        print job
+        print job.__dict__
+        print "---- ## END_SUBMIT_SHARE ## ----"
         if job == None:
             raise SubmitException("Job '%s' not found" % job_id)
 
@@ -219,7 +290,7 @@ class TemplateRegistry(object):
         header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
 
         # 4. Reverse header and compare it with target of the user
-        hash_bin = util.doublesha(''.join([ header_bin[i*4:i*4+4][::-1] for i in range(0, 20) ]))
+        hash_bin = util.doublesha(''.join([header_bin[i*4:i*4+4][::-1] for i in range(0, 20)]))
         hash_int = util.uint256_from_str(hash_bin)
         block_hash_hex = "%064x" % hash_int
         header_hex = binascii.hexlify(header_bin)
@@ -234,6 +305,7 @@ class TemplateRegistry(object):
             log.info("Yay, share with diff above 100000")
 
         # 5. Compare hash with target of the network
+        log.info("Hash_Int: %s, Job.Target %s" % (hash_int, job.target))
         if hash_int <= job.target:
             # Yay! It is block candidate!
             log.info("We found a block candidate! %s" % block_hash_hex)
@@ -247,7 +319,12 @@ class TemplateRegistry(object):
 
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
-            on_submit = self.bitcoin_rpc.submitblock(serialized)
+            #log.info(job.__dict__)
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[JOBSBM]", "uuid" : util.id_generator()}))
+            if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
+                on_submit = self.rootstock_rpc.submitblock(serialized)
+            else:
+                on_submit = self.bitcoin_rpc.submitblock(serialized)
 
             return (header_hex, block_hash_hex, on_submit)
 

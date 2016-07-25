@@ -2,6 +2,7 @@ from service import MiningService
 from subscription import MiningSubscription
 from twisted.internet import defer
 import time
+import traceback
 
 @defer.inlineCallbacks
 def setup(on_startup):
@@ -21,16 +22,31 @@ def setup(on_startup):
     from lib.block_updater import BlockUpdater
     from lib.template_registry import TemplateRegistry
     from lib.bitcoin_rpc import BitcoinRPC
+    from lib.rootstock_rpc import RootstockRPC
     from lib.block_template import BlockTemplate
     from lib.coinbaser import SimpleCoinbaser
 
-    bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
-                             settings.BITCOIN_TRUSTED_PORT,
-                             settings.BITCOIN_TRUSTED_USER,
-                             settings.BITCOIN_TRUSTED_PASSWORD)
 
     import stratum.logger
     log = stratum.logger.get_logger('mining')
+
+    try:
+        bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
+                                 settings.BITCOIN_TRUSTED_PORT,
+                                 settings.BITCOIN_TRUSTED_USER,
+                                 settings.BITCOIN_TRUSTED_PASSWORD)
+        if settings.RSK_TRUSTED_HOST and settings.RSK_TRUSTED_PORT and settings.RSK_TRUSTED_USER and settings.RSK_TRUSTED_PASSWORD:
+            rootstock_rpc = RootstockRPC(settings.RSK_TRUSTED_HOST,
+                                         settings.RSK_TRUSTED_PORT,
+                                         settings.RSK_TRUSTED_USER,
+                                         settings.RSK_TRUSTED_PASSWORD)
+    except AttributeError as e:
+        if e.message == "'module' object has no attribute 'RSK_TRUSTED_HOST'":
+            print "No RSK configuration data"
+            bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
+                                     settings.BITCOIN_TRUSTED_PORT,
+                                     settings.BITCOIN_TRUSTED_USER,
+                                     settings.BITCOIN_TRUSTED_PASSWORD)
 
     log.info('Waiting for bitcoin RPC...')
 
@@ -39,9 +55,18 @@ def setup(on_startup):
             result = (yield bitcoin_rpc.getblocktemplate())
             if isinstance(result, dict):
                 log.info('Response from bitcoin RPC OK')
+                if rootstock_rpc != None:
+                    rsk_result = (yield rootstock_rpc.getwork())
+                    if isinstance(rsk_result, dict):
+                        log.info('Response from rootstock RPC OK')
+                        #log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKRSP]", "start" : Interfaces.timestamper.time(), "uuid" : util.id_generator(), "data" : rsk_result.__dict__}))
+                        break
                 break
-        except:
-            time.sleep(1)
+
+        except Exception as e:
+            #traceback.print_exc()
+            #log.info('exception:')
+            time.sleep(5000)
 
     coinbaser = SimpleCoinbaser(bitcoin_rpc, settings.CENTRAL_WALLET)
     (yield coinbaser.on_load)
@@ -51,7 +76,8 @@ def setup(on_startup):
                                 bitcoin_rpc,
                                 settings.INSTANCE_ID,
                                 MiningSubscription.on_template,
-                                Interfaces.share_manager.on_network_block)
+                                Interfaces.share_manager.on_network_block,
+                                rootstock_rpc)
 
     # Template registry is the main interface between Stratum service
     # and pool core logic

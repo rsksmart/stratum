@@ -4,6 +4,12 @@ import struct
 import StringIO
 import binascii
 from hashlib import sha256
+import random
+import string
+import collections
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def deser_string(f):
     nit = struct.unpack("<B", f.read(1))[0]
@@ -204,3 +210,13 @@ def script_to_address(addr):
         raise ValueError('invalid address')
     (ver, pubkeyhash) = d
     return b'\x76\xa9\x14' + pubkeyhash + b'\x88\xac'
+
+def convert(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert, data))
+    else:
+        return data
