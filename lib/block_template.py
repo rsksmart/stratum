@@ -48,7 +48,7 @@ class BlockTemplate(halfnode.CBlock):
     def fill_from_rpc(self, data):
         '''Convert getblocktemplate result into BlockTemplate instance'''
         #txhashes = [None] + [ binascii.unhexlify(t['hash']) for t in data['transactions'] ]
-        txhashes = [None] + [ util.ser_uint256(int(t['hash'], 16)) for t in data['transactions'] ]
+        txhashes = [None] + [util.ser_uint256(int(t['hash'], 16)) for t in data['transactions']]
         mt = merkletree.MerkleTree(txhashes)
 
         if 'rsk_flag' in data and 'rsk_header' in data and data['rsk_header'] != None:

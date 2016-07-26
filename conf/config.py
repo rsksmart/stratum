@@ -12,7 +12,7 @@ DEBUG = False
 LOGDIR = 'log/'
 
 # Main application log file.
-LOGFILE = None#'stratum.log'
+LOGFILE = 'stratum.log'
 
 # Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOGLEVEL = 'INFO'
@@ -50,6 +50,14 @@ BITCOIN_TRUSTED_HOST = 'localhost'
 BITCOIN_TRUSTED_PORT = 32591
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
+
+RSK_POLL_PERIOD = 10000
+RSK_NOTIFY_POLICY = None
+RSK_TRUSTED_HOST = '127.0.0.1'
+RSK_TRUSTED_PORT = 4444
+RSK_TRUSTED_USER = 'admin'
+RSK_TRUSTED_PASSWORD = 'admin'
+
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
 # for calculating SHA256 of your preferred password

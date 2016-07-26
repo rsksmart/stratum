@@ -239,7 +239,7 @@ class TemplateRegistry(object):
         '''
         logid = util.id_generator()
         start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "start" : start}))
+
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
@@ -320,11 +320,16 @@ class TemplateRegistry(object):
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
             #log.info(job.__dict__)
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[JOBSBM]", "uuid" : util.id_generator()}))
             if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
-                on_submit = self.rootstock_rpc.submitblock(serialized)
+                on_submit = self.bitcoin_rpc.submitblock(serialized)
+                self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for this to be there
             else:
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
+
+            if "rsk_flag" in job.__dict__:
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
+            else:
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTCBSN]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
 
             return (header_hex, block_hash_hex, on_submit)
 

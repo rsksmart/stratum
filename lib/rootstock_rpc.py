@@ -6,7 +6,8 @@ import base64
 import simplejson as json
 from twisted.internet import defer
 from twisted.web import client
-
+from mining.interfaces import Interfaces
+from lib import util
 import stratum.logger
 log = stratum.logger.get_logger('rootstock_rpc')
 
@@ -63,14 +64,14 @@ class RootstockRPC(object):
         '''
         Rootstock RPC mnr_submitBitcoinBlock handler
         '''
-        print "------ ### RSK SUBMIT BLOCK ### ------"
-        print block_hex
+        start = Interfaces.timestamper.time()
+        logid = util.id_generator()
         resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
         if json.loads(resp)['result'] is None:
             defer.returnValue(True)
         else:
             defer.returnValue(False)
-        print "---- ### END_RSK SUBMIT BLOCK ### ----"
+        #log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
 
     @defer.inlineCallbacks
     def getwork(self):
@@ -83,8 +84,3 @@ class RootstockRPC(object):
         except Exception as e:
             log.exception("RSK getwork failed: %s", e)
             raise
-
-    '''
-    from lib.bitcoin_rpc import BitcoinRPC
-    btcrpc = BitcoinRPC('127.0.0.1', 32592, 'admin', 'admin', '127.0.0.1', 4444, 'admin', 'admin')
-    '''

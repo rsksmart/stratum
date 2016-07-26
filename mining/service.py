@@ -1,6 +1,7 @@
 import binascii
 from twisted.internet import defer
-
+import json
+from lib import util
 from stratum.services import GenericService, admin
 from stratum.pubsub import Pubsub
 from interfaces import Interfaces
@@ -86,6 +87,8 @@ class MiningService(GenericService):
                         session['authorized'].get(worker_name)):
             raise SubmitException("Worker is not authorized")
 
+        start = Interfaces.timestamper.time()
+
         # Check if extranonce1 is in connection session
         extranonce1_bin = session.get('extranonce1', None)
         if not extranonce1_bin:
@@ -117,6 +120,8 @@ class MiningService(GenericService):
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
 
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
+
         return True
 
     # Service documentation for remote discovery
@@ -138,4 +143,3 @@ class MiningService(GenericService):
                      ('extranonce2', 'string', 'hex-encoded big-endian extranonce2, length depends on extranonce2_size from mining.notify.'),
                      ('ntime', 'string', 'UNIX timestamp (32bit integer, big-endian, hex-encoded), must be >= ntime provided by mining,notify and <= current time'),
                      ('nonce', 'string', '32bit integer, hex-encoded, big-endian'),]
-

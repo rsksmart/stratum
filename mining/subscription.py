@@ -1,7 +1,9 @@
 from stratum.pubsub import Pubsub, Subscription
 from mining.interfaces import Interfaces
-
+from lib import util
+from mining.interfaces import Interfaces
 import stratum.logger
+import json
 log = stratum.logger.get_logger('subscription')
 
 class MiningSubscription(Subscription):
@@ -26,6 +28,7 @@ class MiningSubscription(Subscription):
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WRKSNS]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''
