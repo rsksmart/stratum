@@ -40,6 +40,8 @@ def setup(on_startup):
                                          settings.RSK_TRUSTED_PORT,
                                          settings.RSK_TRUSTED_USER,
                                          settings.RSK_TRUSTED_PASSWORD)
+        else:
+            rootstock_rpc = None
     except AttributeError as e:
         if e.message == "'module' object has no attribute 'RSK_TRUSTED_HOST'":
             print "No RSK configuration data"
@@ -47,6 +49,7 @@ def setup(on_startup):
                                      settings.BITCOIN_TRUSTED_PORT,
                                      settings.BITCOIN_TRUSTED_USER,
                                      settings.BITCOIN_TRUSTED_PASSWORD)
+            rootstock_rpc = None
 
     log.info('Waiting for bitcoin RPC...')
 
@@ -55,7 +58,7 @@ def setup(on_startup):
             result = (yield bitcoin_rpc.getblocktemplate())
             if isinstance(result, dict):
                 log.info('Response from bitcoin RPC OK')
-                if rootstock_rpc != None:
+                if rootstock_rpc is not None:
                     rsk_result = (yield rootstock_rpc.getwork())
                     if isinstance(rsk_result, dict):
                         log.info('Response from rootstock RPC OK')
@@ -87,7 +90,8 @@ def setup(on_startup):
     # This is just failsafe solution when -blocknotify
     # mechanism is not working properly
     BlockUpdater(registry, bitcoin_rpc)
-    RSKBlockUpdater(registry, rootstock_rpc)
+    if rootstock_rpc is not None:
+        RSKBlockUpdater(registry, rootstock_rpc)
 
     log.info("MINING SERVICE IS READY")
     on_startup.callback(True)

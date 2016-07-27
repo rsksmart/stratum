@@ -25,7 +25,7 @@ class BitcoinRPC(object):
         client.HTTPClientFactory.noisy = False
         self.has_submitblock = False
 
-    def _call_raw(self, data, rsk=None):
+    def _call_raw(self, data):
         client.Headers
         return client.getPage(
             url=self.bitcoin_url,
@@ -34,7 +34,7 @@ class BitcoinRPC(object):
             postdata=data,
         )
 
-    def _call(self, method, params, rsk=None):
+    def _call(self, method, params):
         return self._call_raw(json.dumps({
                 'jsonrpc': '2.0',
                 'method': method,

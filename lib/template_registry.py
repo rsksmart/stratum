@@ -55,7 +55,8 @@ class TemplateRegistry(object):
 
         # Create first block template on startup
         self.update_block()
-        self.rsk_update_block()
+        if rootstock_rpc is not None:
+            self.rsk_update_block()
 
     def get_new_extranonce1(self):
         '''Generates unique extranonce1 (e.g. for newly
@@ -187,16 +188,7 @@ class TemplateRegistry(object):
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
 
-        if self.rootstock_rpc != None and self.rootstock_rpc.rsk_header != None:
-            template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
-            #print "------ RSK BLOCK ------"
-            data['rsk_flag'] = True
-            data['rsk_diff'] = self.rootstock_rpc.rsk_diff
-            data['rsk_header'] = self.rootstock_rpc.rsk_header
-            #print data
-            #print "---- END RSK BLOCK ----"
-        else:
-            template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
+        template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         template.fill_from_rpc(data)
         self.add_template(template)
 

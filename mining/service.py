@@ -120,7 +120,7 @@ class MiningService(GenericService):
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
 
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
         return True
 
