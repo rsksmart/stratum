@@ -50,9 +50,12 @@ class TemplateRegistry(object):
         self.last_block = None
         self.update_in_progress = False
         self.last_update = None
+        self.rsk_last_update = None
+        self.rsk_update_in_progress = False
 
         # Create first block template on startup
         self.update_block()
+        self.rsk_update_block()
 
     def get_new_extranonce1(self):
         '''Generates unique extranonce1 (e.g. for newly
@@ -164,14 +167,17 @@ class TemplateRegistry(object):
         self.update_in_progress = True
         self.last_update = Interfaces.timestamper.time()
 
-        if self.rootstock_rpc != None:
-            rsk = self.rootstock_rpc.getwork()
-            rsk.addCallback(self._rsk_getwork)
-            rsk.addErrback(self._rsk_getwork_err)
-
         d = self.bitcoin_rpc.getblocktemplate()
         d.addCallback(self._update_block)
         d.addErrback(self._update_block_failed)
+
+    def rsk_update_block(self):
+        self.rsk_last_update = Interfaces.timestamper.time()
+        self.rsk_update_in_progress = True
+
+        rsk = self.rootstock_rpc.getwork()
+        rsk.addCallback(self._rsk_getwork)
+        rsk.addErrback(self._rsk_getwork_err)
 
     def _update_block_failed(self, failure):
         log.error(str(failure))
@@ -317,12 +323,16 @@ class TemplateRegistry(object):
                 # Should not happen
                 log.error("Final job validation failed!")
 
+            on_submit = None
+
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
             #log.info(job.__dict__)
             if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
-                on_submit = self.bitcoin_rpc.submitblock(serialized)
-                self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for this to be there
+                if 'btc_target' in job.__dict__ and hash_int <= job.btc_target:
+                    on_submit = self.bitcoin_rpc.submitblock(serialized)
+                if on_submit is None:
+                    on_submit = self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for an on_submit here
             else:
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
 

@@ -16,10 +16,7 @@ class RootstockRPC(object):
     Rootstock RPC class
     '''
 
-    def __init__(self, rsk_host, rsk_port, rsk_username, rsk_password):
-        '''
-        RSK specific settings; if BitcoinRPC is given RSKD settings, set it up
-        '''
+    def __init__(self, rsk_host, rsk_port, rsk_username, rsk_password):        
         log.debug("Got to Rootstock RPC")
         client.HTTPClientFactory.noisy = False
 
@@ -71,7 +68,7 @@ class RootstockRPC(object):
             defer.returnValue(True)
         else:
             defer.returnValue(False)
-        #log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
 
     @defer.inlineCallbacks
     def getwork(self):

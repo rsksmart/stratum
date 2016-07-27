@@ -33,6 +33,7 @@ class BlockTemplate(halfnode.CBlock):
         self.timedelta = 0
         self.curtime = 0
         self.target = 0
+        self.btc_target = 0 # store to check if rsk results are also good for btcd submission
         #self.coinbase_hex = None
         self.merkletree = None
         if rsk != None:
@@ -80,6 +81,7 @@ class BlockTemplate(halfnode.CBlock):
             print "BLOCK TEMPLATE TARGET: %s" % self.target
         else:
             self.target = util.uint256_from_compact(self.nBits)
+            self.btc_target = self.target
 
         # Reversed prevhash
         self.prevhash_bin = binascii.unhexlify(util.reverse_hash(data['previousblockhash']))

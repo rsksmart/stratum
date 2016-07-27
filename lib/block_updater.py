@@ -17,12 +17,10 @@ class BlockUpdater(object):
         with ./bitcoind -blocknotify will go wrong.
     '''
 
-    def __init__(self, registry, bitcoin_rpc, rootstock_rpc=None):
+    def __init__(self, registry, bitcoin_rpc):
         self.bitcoin_rpc = bitcoin_rpc
         self.registry = registry
         self.clock = None
-        if rootstock_rpc != None:
-            self.rootstock_rpc = rootstock_rpc
         self.schedule()
 
     def schedule(self):

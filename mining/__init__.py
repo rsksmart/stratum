@@ -20,12 +20,12 @@ def setup(on_startup):
     (yield Interfaces.worker_manager.on_load)
 
     from lib.block_updater import BlockUpdater
+    from lib.rsk_block_updater import RSKBlockUpdater
     from lib.template_registry import TemplateRegistry
     from lib.bitcoin_rpc import BitcoinRPC
     from lib.rootstock_rpc import RootstockRPC
     from lib.block_template import BlockTemplate
     from lib.coinbaser import SimpleCoinbaser
-
 
     import stratum.logger
     log = stratum.logger.get_logger('mining')
@@ -87,6 +87,7 @@ def setup(on_startup):
     # This is just failsafe solution when -blocknotify
     # mechanism is not working properly
     BlockUpdater(registry, bitcoin_rpc)
+    RSKBlockUpdater(registry, rootstock_rpc)
 
     log.info("MINING SERVICE IS READY")
     on_startup.callback(True)
