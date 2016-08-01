@@ -52,6 +52,7 @@ class TemplateRegistry(object):
         self.last_update = None
         self.rsk_last_update = None
         self.rsk_update_in_progress = False
+        self.last_data = None
 
         # Create first block template on startup
         self.update_block()
@@ -114,10 +115,7 @@ class TemplateRegistry(object):
         '''
         Helper function for generating the rsk header in the expected format
         '''
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKGNH]",
-                "data" : {"bhfmm" : bhfmm, "hdrbh" : binascii.hexlify(str("RSKBLOCK:" + bhfmm))}, "uuid" : util.id_generator()}))
         return "RSKBLOCK:" + binascii.unhexlify(bhfmm[2:])
-        #return binascii.unhexlify(str("RSKBLOCK:" + bhfmm))
 
     def _rsk_fill_data(self, data):
         '''
@@ -133,29 +131,6 @@ class TemplateRegistry(object):
         self.rootstock_rpc.rsk_diff = data['target']
         self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
         self.rootstock_rpc.rsk_notify = data['notify']
-        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[RSKFLL]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start,
-                             "data" : util.convert(data), "rsk_header" : util.uint256_from_str(self.rootstock_rpc.rsk_header)}))
-
-    def _rsk_getwork(self, result):
-        #print "---------------------------"
-        #print "RSK_GETWORK RESULTS: "
-        #print result
-        #print result['blockHashForMergedMining']
-        #print "END RSK_GETWORK RESULTS: "
-
-        if self.rootstock_rpc.rsk_blockhashformergedmining is None:
-            self._rsk_fill_data(result)
-        elif self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
-            pass
-        else:
-            self._rsk_fill_data(result)
-
-    def _rsk_getwork_err(self, err):
-        print "---------------------------"
-        print "ERROR - RSK_GETWORK - ERROR: "
-        print err
-        print "END   - RSK_GETWORK -   END: "
-        print "---------------------------"
 
     def update_block(self):
         '''Registry calls the getblocktemplate() RPC
@@ -172,14 +147,6 @@ class TemplateRegistry(object):
         d.addCallback(self._update_block)
         d.addErrback(self._update_block_failed)
 
-    def rsk_update_block(self):
-        self.rsk_last_update = Interfaces.timestamper.time()
-        self.rsk_update_in_progress = True
-
-        rsk = self.rootstock_rpc.getwork()
-        rsk.addCallback(self._rsk_getwork)
-        rsk.addErrback(self._rsk_getwork_err)
-
     def _update_block_failed(self, failure):
         log.error(str(failure))
         self.update_in_progress = False
@@ -187,6 +154,7 @@ class TemplateRegistry(object):
     def _update_block(self, data):
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
+        self.last_data = data
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         template.fill_from_rpc(data)
@@ -194,9 +162,51 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTCWKR]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTC_WORK_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
         self.update_in_progress = False
         return data
+
+    def rsk_update_block(self):
+        try:
+            if self.rsk_update_in_progress:
+                return
+
+            self.rsk_last_update = Interfaces.timestamper.time()
+            self.rsk_update_in_progress = True
+
+            rsk = self.rootstock_rpc.getwork()
+            rsk.addCallback(self._rsk_getwork)
+            rsk.addErrback(self._rsk_getwork_err)
+        except AttributeError as e:
+            if "'NoneType' object has no attribute 'getwork'" in str(e):
+                pass #RSK dropped recently so we're letting this pass
+
+    def _rsk_getwork(self, result):
+        if self.rootstock_rpc.rsk_blockhashformergedmining is None:
+            self._rsk_fill_data(result)
+        #elif self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
+        #    print "#### RSK_GETWORK PASS"
+        #    pass
+        else:
+            self._rsk_fill_data(result)
+
+        template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
+        self.last_data['rsk_flag'] = True
+        self.last_data['rsk_diff'] = self.rootstock_rpc.rsk_diff
+        self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
+        template.fill_from_rpc(self.last_data)
+        self.add_template(template)
+
+        self.rsk_update_in_progress = False
+        return self.last_data
+
+    def _rsk_getwork_err(self, err):
+        log.error("_RSK_GETWORK_ERR: " + str(err))
+        self.rsk_update_in_progress = False
+        if "111: Connection refused" in str(err):
+            log.info("Shutting down RootstockRPC")
+            self.rootstock_rpc.shutdown()
+            self.rootstock_rpc = None
 
     def diff_to_target(self, difficulty):
         '''Converts difficulty to target'''
@@ -244,10 +254,6 @@ class TemplateRegistry(object):
 
         # Check for job
         job = self.get_job(job_id)
-        print "------ ## SUBMIT_SHARE ## ------"
-        print job
-        print job.__dict__
-        print "---- ## END_SUBMIT_SHARE ## ----"
         if job == None:
             raise SubmitException("Job '%s' not found" % job_id)
 
@@ -319,19 +325,21 @@ class TemplateRegistry(object):
 
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
-            #log.info(job.__dict__)
             if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
                 if 'btc_target' in job.__dict__ and hash_int <= job.btc_target:
                     on_submit = self.bitcoin_rpc.submitblock(serialized)
+                    self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for an on_submit here
+                else:
+                    on_submit = self.rootstock_rpc.submitblock(serialized)
                 if on_submit is None:
-                    on_submit = self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for an on_submit here
+                    on_submit = self.rootstock_rpc.submitblock(serialized)
             else:
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
 
             if "rsk_flag" in job.__dict__:
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
             else:
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTCBSN]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
 
             return (header_hex, block_hash_hex, on_submit)
 

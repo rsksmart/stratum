@@ -42,6 +42,9 @@ class BitcoinRPC(object):
                 'id': '1',
             }))
 
+    def _sb_debug_callback(self, data):
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SB_RESPONSE]", "data" : data}))
+
     @defer.inlineCallbacks
     def submitblock(self, block_hex):
         start = Interfaces.timestamper.time()
@@ -51,7 +54,8 @@ class BitcoinRPC(object):
             defer.returnValue(True)
         else:
             defer.returnValue(False)
-        #log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTCSBM]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SOLUTION_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
+        self.submitblock.addCallback(self._sb_debug_callback)
 
     @defer.inlineCallbacks
     def getinfo(self):

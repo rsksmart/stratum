@@ -7,6 +7,7 @@ from stratum.pubsub import Pubsub
 from interfaces import Interfaces
 from subscription import MiningSubscription
 from lib.exceptions import SubmitException
+from stratum import settings
 
 import stratum.logger
 log = stratum.logger.get_logger('mining')
@@ -57,7 +58,7 @@ class MiningService(GenericService):
 
         session = self.connection_ref().get_session()
         session['extranonce1'] = extranonce1
-        session['difficulty'] = 1 # Following protocol specs, default diff is 1
+        session['difficulty'] = settings.RSK_STRATUM_SET_DIFFICULTY # Following protocol specs, default diff is 1
 
         return Pubsub.subscribe(self.connection_ref(), MiningSubscription()) + (extranonce1_hex, extranonce2_size)
 
@@ -75,6 +76,8 @@ class MiningService(GenericService):
         log.info("LEN %.03f" % (time.time() - start))
         return ret
     '''
+    def _print_data(self,data):
+        log.debug({"rsk" : "[RSKLOG]", "tag" : "[ON_SUBMIT_DATA]", "data" : data})
 
     def submit(self, worker_name, job_id, extranonce2, ntime, nonce):
         '''Try to solve block candidate using given parameters.'''
@@ -104,7 +107,8 @@ class MiningService(GenericService):
         try:
             (block_header, block_hash, on_submit) = Interfaces.template_registry.submit_share(job_id,
                                                 worker_name, extranonce1_bin, extranonce2, ntime, nonce, difficulty)
-        except SubmitException:
+        except SubmitException as e:
+            log.error("SUBMIT EXCEPTION: %s", e)
             # block_header and block_hash are None when submitted data are corrupted
             Interfaces.share_manager.on_submit_share(worker_name, None, None, difficulty,
                                                  submit_time, False)
@@ -117,10 +121,11 @@ class MiningService(GenericService):
         if on_submit != None:
             # Pool performs submitblock() to bitcoind. Let's hook
             # to result and report it to share manager
+            on_submit.addCallback(self._print_data)
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
 
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHRRCV]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
         return True
 

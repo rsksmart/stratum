@@ -78,7 +78,7 @@ class BlockTemplate(halfnode.CBlock):
         self.merkletree = mt
         if 'rsk_flag' in data:
             self.target = int(data['rsk_diff'], 16)
-            print "BLOCK TEMPLATE TARGET: %s" % self.target
+            log.debug("BLOCK TEMPLATE TARGET: %s" % self.target)
         else:
             self.target = util.uint256_from_compact(self.nBits)
             self.btc_target = self.target
@@ -113,12 +113,6 @@ class BlockTemplate(halfnode.CBlock):
         version = binascii.hexlify(struct.pack(">i", self.nVersion))
         nbits = binascii.hexlify(struct.pack(">I", self.nBits))
         ntime = binascii.hexlify(struct.pack(">I", self.curtime))
-        log.info(json.dumps({"uuid" : logid, "start" : start, "elapsed" :  Interfaces.timestamper.time() - start, "rsk" : "[RSKLOG]",
-                             "tag" : "[BBCARG]", "data" : {"job_id" : job_id, "prevhash" : prevhash,
-                             "coinb1" : coinb1, "coinb2" : coinb2, "merkle_branch" : merkle_branch, "version" : version,
-                             "nbits" : nbits, "ntime" : ntime}}))
-        #log.info("%s - [RSKLOG] - [BBCARG] - %s - %s - Arguments: job_id: %s, prevhash: %s, coinb1: %s, coinb2: %s, merkle_branch: %s, version: %s, nbits: %s, ntime: %s",
-        #         logid, start, Interfaces.timestamper.time() - start, job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime)
         clean_jobs = True
 
         return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)

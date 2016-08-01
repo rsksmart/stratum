@@ -51,7 +51,7 @@ class BlockUpdater(object):
                 logid = util.id_generator()
                 log.info("New block! Prevhash: %s" % prevhash)
                 update = True
-                log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTCBPD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+                log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTC_NEW_BLOCK_PARENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
             elif Interfaces.timestamper.time() - self.registry.last_update >= settings.MERKLE_REFRESH_INTERVAL:
                 log.info("Merkle update! Prevhash: %s" % prevhash)

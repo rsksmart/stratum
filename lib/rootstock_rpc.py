@@ -8,17 +8,20 @@ from twisted.internet import defer
 from twisted.web import client
 from mining.interfaces import Interfaces
 from lib import util
+from util import Singleton
 import stratum.logger
 log = stratum.logger.get_logger('rootstock_rpc')
 
 class RootstockRPC(object):
+    __metaclass__ = Singleton
     '''
     Rootstock RPC class
     '''
 
-    def __init__(self, rsk_host, rsk_port, rsk_username, rsk_password):        
+    def __init__(self, rsk_host, rsk_port, rsk_username, rsk_password):
         log.debug("Got to Rootstock RPC")
         client.HTTPClientFactory.noisy = False
+        self.active = True
 
         self.rskd_url = 'http://%s:%d' % (rsk_host, rsk_port)
         self.rskd_cred = base64.b64encode("%s:%s" % (rsk_username, rsk_password))
@@ -56,28 +59,33 @@ class RootstockRPC(object):
             'id': '1',
         }))
 
+    def shutdown(self):
+        self.active = False
+
     @defer.inlineCallbacks
     def submitblock(self, block_hex):
         '''
         Rootstock RPC mnr_submitBitcoinBlock handler
         '''
-        start = Interfaces.timestamper.time()
-        logid = util.id_generator()
-        resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
-        if json.loads(resp)['result'] is None:
-            defer.returnValue(True)
-        else:
-            defer.returnValue(False)
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKSPV]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
+        if self.active:
+            start = Interfaces.timestamper.time()
+            logid = util.id_generator()
+            resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
+            if json.loads(resp)['result'] is None:
+                defer.returnValue(True)
+            else:
+                defer.returnValue(False)
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SOLUTION_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
 
     @defer.inlineCallbacks
     def getwork(self):
         '''
         RSK getwork implementation
         '''
-        try:
-            resp = (yield self._call('mnr_getWork', []))
-            defer.returnValue(json.loads(resp)['result'])
-        except Exception as e:
-            log.exception("RSK getwork failed: %s", e)
-            raise
+        if self.active:
+            try:
+                resp = (yield self._call('mnr_getWork', []))
+                defer.returnValue(json.loads(resp)['result'])
+            except Exception as e:
+                log.exception("RSK getwork failed: %s", e)
+                raise

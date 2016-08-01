@@ -8,8 +8,20 @@ import random
 import string
 import collections
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+debug_counter = 0
+
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+def id_generator():
+    global debug_counter
+    res = '{0:010d}'.format(debug_counter)
+    debug_counter += 1
+    return res
 
 def deser_string(f):
     nit = struct.unpack("<B", f.read(1))[0]

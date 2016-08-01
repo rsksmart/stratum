@@ -4,6 +4,7 @@ from lib import util
 from mining.interfaces import Interfaces
 import stratum.logger
 import json
+from stratum import settings
 log = stratum.logger.get_logger('subscription')
 
 class MiningSubscription(Subscription):
@@ -28,10 +29,11 @@ class MiningSubscription(Subscription):
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WRKSNS]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''
+        start = Interfaces.timestamper.time()
         try:
             (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = \
                         Interfaces.template_registry.get_last_broadcast_args()
@@ -41,12 +43,14 @@ class MiningSubscription(Subscription):
 
         # Force set higher difficulty
         # TODO
-        #self.connection_ref().rpc('mining.set_difficulty', [2,], is_notification=True)
+        self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_SET_DIFFICULTY,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
         # Force client to remove previous jobs if any (eg. from previous connection)
         clean_jobs = True
         self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, True)
+
+        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
         return result
 

@@ -44,7 +44,7 @@ def setup(on_startup):
             rootstock_rpc = None
     except AttributeError as e:
         if e.message == "'module' object has no attribute 'RSK_TRUSTED_HOST'":
-            print "No RSK configuration data"
+            log.debug("No RSK configuration data")
             bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
                                      settings.BITCOIN_TRUSTED_PORT,
                                      settings.BITCOIN_TRUSTED_USER,
@@ -58,12 +58,6 @@ def setup(on_startup):
             result = (yield bitcoin_rpc.getblocktemplate())
             if isinstance(result, dict):
                 log.info('Response from bitcoin RPC OK')
-                if rootstock_rpc is not None:
-                    rsk_result = (yield rootstock_rpc.getwork())
-                    if isinstance(rsk_result, dict):
-                        log.info('Response from rootstock RPC OK')
-                        #log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSKRSP]", "start" : Interfaces.timestamper.time(), "uuid" : util.id_generator(), "data" : rsk_result.__dict__}))
-                        break
                 break
 
         except Exception as e:
