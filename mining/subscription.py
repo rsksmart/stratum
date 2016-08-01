@@ -1,7 +1,8 @@
 from stratum.pubsub import Pubsub, Subscription
 from mining.interfaces import Interfaces
-
+import json
 import stratum.logger
+from lib import util
 log = stratum.logger.get_logger('subscription')
 
 class MiningSubscription(Subscription):
@@ -26,9 +27,11 @@ class MiningSubscription(Subscription):
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''
+        start = Interfaces.timestamper.time()
         try:
             (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = \
                         Interfaces.template_registry.get_last_broadcast_args()
@@ -44,7 +47,7 @@ class MiningSubscription(Subscription):
         # Force client to remove previous jobs if any (eg. from previous connection)
         clean_jobs = True
         self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, True)
-
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
         return result
 
     def after_subscribe(self, *args):

@@ -2,6 +2,7 @@ import weakref
 import binascii
 import util
 import StringIO
+import json
 
 from twisted.internet import defer
 from lib.exceptions import SubmitException
@@ -131,6 +132,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
 
         self.update_in_progress = False
         return data
@@ -172,7 +174,7 @@ class TemplateRegistry(object):
             - difficulty - decimal number from session, again no checks performed
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
-
+        start = Interfaces.timestamper.time()
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
@@ -248,7 +250,7 @@ class TemplateRegistry(object):
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
             on_submit = self.bitcoin_rpc.submitblock(serialized)
-
+            log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
             return (header_hex, block_hash_hex, on_submit)
 
         return (header_hex, block_hash_hex, None)

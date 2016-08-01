@@ -6,7 +6,8 @@ from stratum.pubsub import Pubsub
 from interfaces import Interfaces
 from subscription import MiningSubscription
 from lib.exceptions import SubmitException
-
+import json
+from lib import util
 import stratum.logger
 log = stratum.logger.get_logger('mining')
 
@@ -116,6 +117,7 @@ class MiningService(GenericService):
             # to result and report it to share manager
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
+            log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_SENT]", "start" : submit_time, "elapsed" : Interfaces.timestamper.time() - submit_time}))
 
         return True
 
@@ -138,4 +140,3 @@ class MiningService(GenericService):
                      ('extranonce2', 'string', 'hex-encoded big-endian extranonce2, length depends on extranonce2_size from mining.notify.'),
                      ('ntime', 'string', 'UNIX timestamp (32bit integer, big-endian, hex-encoded), must be >= ntime provided by mining,notify and <= current time'),
                      ('nonce', 'string', '32bit integer, hex-encoded, big-endian'),]
-

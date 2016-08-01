@@ -5,6 +5,14 @@ import StringIO
 import binascii
 from hashlib import sha256
 
+debug_counter = 0
+
+def id_generator():
+    global debug_counter
+    res = '{0:010d}'.format(debug_counter)
+    debug_counter += 1
+    return res
+
 def deser_string(f):
     nit = struct.unpack("<B", f.read(1))[0]
     if nit == 253:

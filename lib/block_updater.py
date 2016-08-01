@@ -1,6 +1,6 @@
 from twisted.internet import reactor, defer
 from stratum import settings
-
+import json
 import util
 from mining.interfaces import Interfaces
 
@@ -37,7 +37,7 @@ class BlockUpdater(object):
     @defer.inlineCallbacks
     def run(self):
         update = False
-
+        start = Interfaces.timestamper.time()
         try:
             if self.registry.last_block:
                 current_prevhash = "%064x" % self.registry.last_block.hashPrevBlock
@@ -47,6 +47,7 @@ class BlockUpdater(object):
             prevhash = util.reverse_hash((yield self.bitcoin_rpc.prevhash()))
             if prevhash and prevhash != current_prevhash:
                 log.info("New block! Prevhash: %s" % prevhash)
+                log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[NEW_BLOCK_PARENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
                 update = True
 
             elif Interfaces.timestamper.time() - self.registry.last_update >= settings.MERKLE_REFRESH_INTERVAL:
@@ -55,10 +56,9 @@ class BlockUpdater(object):
 
             if update:
                 self.registry.update_block()
+                log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[NEW_WORK_UNIT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
         except Exception:
             log.exception("UpdateWatchdog.run failed")
         finally:
             self.schedule()
-
-
