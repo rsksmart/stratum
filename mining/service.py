@@ -117,7 +117,9 @@ class MiningService(GenericService):
             # to result and report it to share manager
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
-            log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_SENT]", "start" : submit_time, "elapsed" : Interfaces.timestamper.time() - submit_time}))
+            logdat = json.dumps({"worker_name" : worker_name, "job_id" : job_id, "extranonce2" : extranonce2, "ntime" : ntime, "nonce" : nonce})            
+            log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_SENT]", "start" : submit_time, "elapsed" : Interfaces.timestamper.time() - submit_time,
+                                 "data" : logdat}))
 
         return True
 

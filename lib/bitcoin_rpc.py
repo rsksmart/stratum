@@ -6,8 +6,9 @@ import simplejson as json
 import base64
 from twisted.internet import defer
 from twisted.web import client
-
+import util
 import stratum.logger
+from mining.interfaces import Interfaces
 log = stratum.logger.get_logger('bitcoin_rpc')
 
 class BitcoinRPC(object):
@@ -39,7 +40,9 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def submitblock(self, block_hex):
+        start = Interfaces.timestamper.time()
         resp = (yield self._call('submitblock', [block_hex,]))
+        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_START]", "start" : start, "elapsed" : 0, "data" : json.dumps({"hex" : block_hex})}))
         if json.loads(resp)['result'] == None:
             defer.returnValue(True)
         else:
@@ -52,7 +55,9 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def getblocktemplate(self):
+        start = Interfaces.timestamper.time()
         resp = (yield self._call('getblocktemplate', []))
+        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_START]", "start" : start, "elapsed" : 0}))
         defer.returnValue(json.loads(resp)['result'])
 
     @defer.inlineCallbacks

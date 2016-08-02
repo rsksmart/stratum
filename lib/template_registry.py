@@ -114,25 +114,25 @@ class TemplateRegistry(object):
 
         self.update_in_progress = True
         self.last_update = Interfaces.timestamper.time()
-
+        btc_block_received_start = Interfaces.timestamper.time()
+        btc_block_received_id = util.id_generator()
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_START]", "start" : btc_block_received_start, "elapsed" : 0, "uuid" : btc_block_received_id}))
         d = self.bitcoin_rpc.getblocktemplate()
-        d.addCallback(self._update_block)
+        d.addCallback(self._update_block, btc_block_received_start, btc_block_received_id)
         d.addErrback(self._update_block_failed)
 
     def _update_block_failed(self, failure):
         log.error(str(failure))
         self.update_in_progress = False
 
-    def _update_block(self, data):
-        start = Interfaces.timestamper.time()
-
+    def _update_block(self, data, start, log_id):
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         template.fill_from_rpc(data)
         self.add_template(template)
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : log_id, "data" : json.dumps(data)}))
 
         self.update_in_progress = False
         return data
@@ -250,7 +250,7 @@ class TemplateRegistry(object):
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
             on_submit = self.bitcoin_rpc.submitblock(serialized)
-            log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
+
             return (header_hex, block_hash_hex, on_submit)
 
         return (header_hex, block_hash_hex, None)

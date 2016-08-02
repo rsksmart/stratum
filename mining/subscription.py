@@ -27,7 +27,11 @@ class MiningSubscription(Subscription):
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
+        logdat = json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
+                             "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "uuid" : util.id_generator(), "data" : logdat}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(),
+                             "data" : logdat}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''
@@ -47,7 +51,9 @@ class MiningSubscription(Subscription):
         # Force client to remove previous jobs if any (eg. from previous connection)
         clean_jobs = True
         self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, True)
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(),
+                             "data" : json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
+                                                  "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})}))
         return result
 
     def after_subscribe(self, *args):
