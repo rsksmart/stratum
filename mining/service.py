@@ -58,7 +58,10 @@ class MiningService(GenericService):
 
         session = self.connection_ref().get_session()
         session['extranonce1'] = extranonce1
-        session['difficulty'] = settings.RSK_STRATUM_SET_DIFFICULTY # Following protocol specs, default diff is 1
+        if hasattr(settings, 'RSK_STRATUM_SET_DIFFICULTY'):
+            session['difficulty'] = settings.RSK_STRATUM_SET_DIFFICULTY
+        else:
+            session['difficulty'] = 1 # Following protocol specs, default diff is 1
 
         return Pubsub.subscribe(self.connection_ref(), MiningSubscription()) + (extranonce1_hex, extranonce2_size)
 

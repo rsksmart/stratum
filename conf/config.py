@@ -58,7 +58,7 @@ RSK_TRUSTED_PORT = 4444
 RSK_TRUSTED_USER = 'admin'
 RSK_TRUSTED_PASSWORD = 'admin'
 
-RSK_STRATUM_SET_DIFFICULTY = 1
+#RSK_STRATUM_SET_DIFFICULTY = 1
 
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "

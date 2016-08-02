@@ -78,7 +78,6 @@ class BlockTemplate(halfnode.CBlock):
         self.merkletree = mt
         if 'rsk_flag' in data:
             self.target = int(data['rsk_diff'], 16)
-            log.debug("BLOCK TEMPLATE TARGET: %s" % self.target)
         else:
             self.target = util.uint256_from_compact(self.nBits)
             self.btc_target = self.target

@@ -3,7 +3,7 @@ import json
 import binascii
 import util
 import StringIO
-
+from stratum import settings
 from twisted.internet import defer
 from lib.exceptions import SubmitException
 
@@ -75,6 +75,8 @@ class TemplateRegistry(object):
         not be used anymore.'''
 
         prevhash = block.prevhash_hex
+        if hasattr(block, 'rsk_flag'):
+            rsk_is_old_block = self.rootstock_rpc.rsk_parent_hash == self.rootstock_rpc.rsk_last_parent_hash
 
         if prevhash in self.prevhashes.keys():
             new_block = False
@@ -104,8 +106,16 @@ class TemplateRegistry(object):
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
 
-        # Everything is ready, let's broadcast jobs!
-        self.on_template_callback(new_block)
+        if settings.RSK_NOTIFY_POLICY:
+            if settings.RSK_NOTIFY_POLICY == 1:
+                if block['rsk_flag'] and block['rsk_notify'] is True:
+                    self.on_template_callback(new_block)
+            if settings.RSK_NOTIFY_POLICY == 2:
+                if not rsk_is_old_block:
+                    self.on_template_callback(new_block)
+        else:
+            # Everything is ready, let's broadcast jobs!
+            self.on_template_callback(new_block)
 
 
         #from twisted.internet import reactor
@@ -124,10 +134,12 @@ class TemplateRegistry(object):
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
         self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
+        if self.rootstock_rpc.rsk_header is not None:
+            self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
         self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
-        self.rootstock_rpc.rsk_last_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+        if self.rootstock_rpc.rsk_parent_hash is not None:
+            self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
-        self.rootstock_rpc.rsk_last_parent_hash = data['parentBlockHash']
         self.rootstock_rpc.rsk_diff = data['target']
         self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
         self.rootstock_rpc.rsk_notify = data['notify']
@@ -194,6 +206,7 @@ class TemplateRegistry(object):
         self.last_data['rsk_flag'] = True
         self.last_data['rsk_diff'] = self.rootstock_rpc.rsk_diff
         self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
+        self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
 
@@ -328,7 +341,7 @@ class TemplateRegistry(object):
             if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
                 if 'btc_target' in job.__dict__ and hash_int <= job.btc_target:
                     on_submit = self.bitcoin_rpc.submitblock(serialized)
-                    self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry for now so it probably isn't too critical for an on_submit here
+                    self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry so its not critical
                 else:
                     on_submit = self.rootstock_rpc.submitblock(serialized)
                 if on_submit is None:

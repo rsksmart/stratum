@@ -17,7 +17,6 @@ class MiningSubscription(Subscription):
     def on_template(cls, is_new_block):
         '''This is called when TemplateRegistry registers
            new block which we have to broadcast clients.'''
-
         start = Interfaces.timestamper.time()
 
         clean_jobs = is_new_block
@@ -43,7 +42,8 @@ class MiningSubscription(Subscription):
 
         # Force set higher difficulty
         # TODO
-        self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_SET_DIFFICULTY,], is_notification=True)
+        if hasattr(settings, 'RSK_STRATUM_SET_DIFFICULTY'):
+            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_SET_DIFFICULTY,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
         # Force client to remove previous jobs if any (eg. from previous connection)
