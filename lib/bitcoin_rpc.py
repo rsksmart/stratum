@@ -57,7 +57,6 @@ class BitcoinRPC(object):
     def getblocktemplate(self):
         start = Interfaces.timestamper.time()
         resp = (yield self._call('getblocktemplate', []))
-        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_START]", "start" : start, "elapsed" : 0}))
         defer.returnValue(json.loads(resp)['result'])
 
     @defer.inlineCallbacks
