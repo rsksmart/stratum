@@ -12,7 +12,7 @@ DEBUG = False
 LOGDIR = 'log/'
 
 # Main application log file.
-LOGFILE = None#'stratum.log'
+LOGFILE = 'stratum.log'
 
 # Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOGLEVEL = 'INFO'
