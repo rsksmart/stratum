@@ -18,19 +18,22 @@ class MiningSubscription(Subscription):
         '''This is called when TemplateRegistry registers
            new block which we have to broadcast clients.'''
         start = Interfaces.timestamper.time()
-
+        rsk_flag = False
         clean_jobs = is_new_block
         #(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, rsk_job) = \
         #                Interfaces.template_registry.get_last_broadcast_args()
         bc_args = Interfaces.template_registry.get_last_broadcast_args()
-        (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
+        if len(bc_args) == 10:
+            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, rsk_flag) = bc_args
+        else:
+            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
         # Push new job to subscribed clients
         cls.emit(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         logdat = json.dumps(bc_args)
-        if hasattr(bc_args, 'rsk_flag'):
+        if rsk_flag:
             log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
         else:
             log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))

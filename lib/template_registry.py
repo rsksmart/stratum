@@ -52,7 +52,7 @@ class TemplateRegistry(object):
         self.last_update = None
         self.rsk_last_update = None
         self.rsk_update_in_progress = False
-        self.last_data = None
+        self.last_data = dict()
 
         # Create first block template on startup
         self.update_block()
