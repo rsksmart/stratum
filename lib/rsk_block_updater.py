@@ -48,12 +48,12 @@ class RSKBlockUpdater(object):
             start = Interfaces.timestamper.time()
             rsk_update = False
             try:
-                log.debug(str("RSKBLOCKUPDATER.RUN: " + str(Interfaces.timestamper.time() - self.registry.rsk_last_update)))
                 if Interfaces.timestamper.time() - self.registry.rsk_last_update >= self.timer:
                     rsk_update = True
-                    log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[RSK_WORK_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+                    log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[RSK_NEW_BLOCK_PARENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
                 if rsk_update:
                     self.registry.rsk_update_block()
+                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_NEW_WORK_UNIT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
             except Exception:
                 log.exception("RSKUpdateWatchdog.run failed")
             finally:

@@ -79,8 +79,6 @@ class MiningService(GenericService):
         log.info("LEN %.03f" % (time.time() - start))
         return ret
     '''
-    def _print_data(self,data):
-        log.debug({"rsk" : "[RSKLOG]", "tag" : "[ON_SUBMIT_DATA]", "data" : data})
 
     def submit(self, worker_name, job_id, extranonce2, ntime, nonce):
         '''Try to solve block candidate using given parameters.'''
@@ -124,11 +122,10 @@ class MiningService(GenericService):
         if on_submit != None:
             # Pool performs submitblock() to bitcoind. Let's hook
             # to result and report it to share manager
-            on_submit.addCallback(self._print_data)
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
-
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+            logdat = json.dumps({"worker_name" : worker_name, "job_id" : job_id, "extranonce2" : extranonce2, "ntime" : ntime, "nonce" : nonce})
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : logdat}))
 
         return True
 

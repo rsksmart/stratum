@@ -50,12 +50,12 @@ class BitcoinRPC(object):
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
         resp = (yield self._call('submitblock', [block_hex,]))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SHARE_RECEIVED_START]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid, "data" : {"hex" : block_hex}}))
         if json.loads(resp)['result'] is None:
             defer.returnValue(True)
         else:
             defer.returnValue(False)
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SOLUTION_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
-        self.submitblock.addCallback(self._sb_debug_callback)
+
 
     @defer.inlineCallbacks
     def getinfo(self):

@@ -113,8 +113,11 @@ class BlockTemplate(halfnode.CBlock):
         nbits = binascii.hexlify(struct.pack(">I", self.nBits))
         ntime = binascii.hexlify(struct.pack(">I", self.curtime))
         clean_jobs = True
-
-        return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
+        if hasattr(self, 'rsk_flag') and self.btc_target is not 0:
+            rsk_job = True
+            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, rsk_job)
+        else:
+            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
 
     def serialize_coinbase(self, extranonce1, extranonce2):
         '''Serialize coinbase with given extranonce1 and extranonce2

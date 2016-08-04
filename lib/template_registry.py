@@ -154,18 +154,19 @@ class TemplateRegistry(object):
 
         self.update_in_progress = True
         self.last_update = Interfaces.timestamper.time()
-
+        btc_block_received_start = Interfaces.timestamper.time()
+        btc_block_received_id = util.id_generator()
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_START]", "start" : btc_block_received_start, "elapsed" : 0, "uuid" : btc_block_received_id}))
         d = self.bitcoin_rpc.getblocktemplate()
-        d.addCallback(self._update_block)
+        d.addCallback(self._update_block, btc_block_received_id)
         d.addErrback(self._update_block_failed)
 
     def _update_block_failed(self, failure):
         log.error(str(failure))
         self.update_in_progress = False
 
-    def _update_block(self, data):
+    def _update_block(self, data, id):
         start = Interfaces.timestamper.time()
-        logid = util.id_generator()
         self.last_data = data
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
@@ -174,7 +175,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTC_WORK_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start})) #[BTC_WORK_RECEIVED]
         self.update_in_progress = False
         return data
 
@@ -185,7 +186,9 @@ class TemplateRegistry(object):
 
             self.rsk_last_update = Interfaces.timestamper.time()
             self.rsk_update_in_progress = True
-
+            rsk_block_received_start = Interfaces.timestamper.time()
+            rsk_block_received_id = util.id_generator()
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_START]", "start" : rsk_block_received_start, "elapsed" : 0, "uuid" : rsk_block_received_id}))
             rsk = self.rootstock_rpc.getwork()
             rsk.addCallback(self._rsk_getwork)
             rsk.addErrback(self._rsk_getwork_err)
@@ -194,13 +197,8 @@ class TemplateRegistry(object):
                 pass #RSK dropped recently so we're letting this pass
 
     def _rsk_getwork(self, result):
-        if self.rootstock_rpc.rsk_blockhashformergedmining is None:
-            self._rsk_fill_data(result)
-        #elif self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
-        #    print "#### RSK_GETWORK PASS"
-        #    pass
-        else:
-            self._rsk_fill_data(result)
+
+        self._rsk_fill_data(result)
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
         self.last_data['rsk_flag'] = True
@@ -209,7 +207,7 @@ class TemplateRegistry(object):
         self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
-
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : Interfaces.timestamper.time(), "elapsed" : 0}))
         self.rsk_update_in_progress = False
         return self.last_data
 

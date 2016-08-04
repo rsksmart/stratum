@@ -71,11 +71,11 @@ class RootstockRPC(object):
             start = Interfaces.timestamper.time()
             logid = util.id_generator()
             resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SHARE_RECEIVED_START]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid, "data" : {"hex" : block_hex}}))
             if json.loads(resp)['result'] is None:
                 defer.returnValue(True)
             else:
                 defer.returnValue(False)
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SOLUTION_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : logid}))
 
     @defer.inlineCallbacks
     def getwork(self):
