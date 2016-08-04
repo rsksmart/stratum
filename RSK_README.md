@@ -137,14 +137,24 @@ RootstockJ
   - node1.conf is in the same folder as the jar.
   - Node1 will be listening for RPC at 127.0.0.1:4444.
 
+Necessary Modifications
+=======================
+
+  > TODO: Add python, pip, virtualenv installation instructions
+
 To be able to mine from a local RSK-Stratum node, the previous steps must have been followed.
 
 Several python modules will have to be installed through pip (twisted, stratum, pyopenssl)
 
-/usr/local/lib/python2.7/dist-packages/stratum/websocket_transport.py must be modified like so:
+A Stratum library file must be modified:
+/usr/local/lib/python2.7/dist-packages/stratum/websocket_transport.py:1
 
-from autobahn.websocket import
+from
+  > from autobahn.websocket import WebSocketServerProtocol, WebSocketServerFactory
+
 to
-from autobahn.twisted.websocket import
 
-Launch command: twistd -ny launcher_demo.tac -l -
+  > from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
+
+Launch command:
+> twistd -ny launcher_demo.tac -l -
