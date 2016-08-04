@@ -190,13 +190,13 @@ class TemplateRegistry(object):
             rsk_block_received_id = util.id_generator()
             log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_START]", "start" : rsk_block_received_start, "elapsed" : 0, "uuid" : rsk_block_received_id}))
             rsk = self.rootstock_rpc.getwork()
-            rsk.addCallback(self._rsk_getwork)
+            rsk.addCallback(self._rsk_getwork, rsk_block_received_id)
             rsk.addErrback(self._rsk_getwork_err)
         except AttributeError as e:
             if "'NoneType' object has no attribute 'getwork'" in str(e):
                 pass #RSK dropped recently so we're letting this pass
 
-    def _rsk_getwork(self, result):
+    def _rsk_getwork(self, result, id):
 
         self._rsk_fill_data(result)
 
@@ -207,7 +207,8 @@ class TemplateRegistry(object):
         self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : Interfaces.timestamper.time(), "elapsed" : 0}))
+        start = Interfaces.timestamper.time()
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0}))
         self.rsk_update_in_progress = False
         return self.last_data
 
