@@ -68,7 +68,6 @@ class RootstockRPC(object):
         Rootstock RPC mnr_submitBitcoinBlock handler
         '''
         if self.active:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SHARE_RECEIVED_END]", "start" : Interfaces.timestamper.time(), "uuid" : util.id_generator(), "data" : block_hex}))
             resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
             if json.loads(resp)['result'] is None:
                 defer.returnValue(True)

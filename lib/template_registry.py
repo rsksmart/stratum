@@ -259,7 +259,6 @@ class TemplateRegistry(object):
         '''
         logid = util.id_generator()
         start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_START]", "start" : start, "data" : nonce}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
@@ -341,11 +340,15 @@ class TemplateRegistry(object):
                 if 'btc_target' in job.__dict__ and hash_int <= job.btc_target:
                     on_submit = self.bitcoin_rpc.submitblock(serialized)
                     self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry so its not critical
+                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"btc_share" : True, "rsk_share" : 'rsk_flag' in job.__dict__}}))
                 else:
+                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
                     on_submit = self.rootstock_rpc.submitblock(serialized)
                 if on_submit is None:
+                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
                     on_submit = self.rootstock_rpc.submitblock(serialized)
             else:
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"btc_share" : True}}))
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
 
             if "rsk_flag" in job.__dict__:
