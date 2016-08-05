@@ -175,6 +175,7 @@ class TemplateRegistry(object):
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
         start = Interfaces.timestamper.time()
+        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_START]", "start" : start, "elapsed" : 0, "data" : nonce}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
