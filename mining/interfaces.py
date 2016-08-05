@@ -46,8 +46,6 @@ class ShareManagerInterface(object):
         log.info("%s %s %s" % (block_hash, 'valid' if is_valid else 'INVALID', worker_name))
 
     def on_submit_block(self, is_accepted, worker_name, block_header, block_hash, timestamp):
-        logdat = json.dumps({"worker_name" : worker_name, "block_header" : block_header, "block_hash" : block_hash, "timestamp" : timestamp}) #particularly block_hash
-        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_END]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : logdat})) #could be BTC or RSK
         log.info("Block %s %s" % (block_hash, 'ACCEPTED' if is_accepted else 'REJECTED'))
 
 class TimestamperInterface(object):
