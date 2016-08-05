@@ -40,7 +40,6 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def submitblock(self, block_hex):
-        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_END]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : block_hex}))
         resp = (yield self._call('submitblock', [block_hex,]))
         if json.loads(resp)['result'] == None:
             defer.returnValue(True)
