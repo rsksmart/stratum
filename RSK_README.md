@@ -179,4 +179,4 @@ The pool will be launched through the following command, once the bitcoind insta
 
 Once launched, a minerd instance can be pointed at the server:
 
-> minerd -a sha256d -t 2 --url=stratum+tcp://192.168.0.121:3333 --userpass=user:pass
+> minerd -a sha256d -t 2 --url=stratum+tcp://127.0.0.1:3333 --userpass=user:pass
