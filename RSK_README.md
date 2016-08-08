@@ -137,17 +137,30 @@ RootstockJ
   - node1.conf is in the same folder as the jar.
   - Node1 will be listening for RPC at 127.0.0.1:4444.
 
-Necessary Modifications
-=======================
+Stratum Installation Instructions
+=================================
 
-  > TODO: Add python, pip, virtualenv installation instructions
+Python 2.7 must be installed. If it is not, this guide should be followed:
+[Python installation instructions](http://docs.python-guide.org/en/latest/starting/installation/)
 
-To be able to mine from a local RSK-Stratum node, the previous steps must have been followed.
+On Linux we must also install some additional packages.
 
-Several python modules will have to be installed through pip (twisted, stratum, pyopenssl)
+  > sudo apt-get install python-pip python-dev libffi-dev libssl-dev libxml2-dev libxslt1-dev libjpeg8-dev zlib1g-dev
+
+Pip must also be installed in order to install the required python packages. [Pip installation instructions](https://pip.pypa.io/en/stable/installing/)
+
+We will set up a virtualenv in order to have an environment for Stratum. We will be using this implementation: [Virtualenv-burrito](https://github.com/brainsik/virtualenv-burrito)
+
+Once these programs are installed, we will make an environment:
+
+  > mkvirtualenv rskstratum
+
+We will be in the rskstratum virtual environment, in which we must install several pip packages.
+
+  > pip install twisted pyopenssl stratum simplejson pycrypto
 
 A Stratum library file must be modified:
-/usr/local/lib/python2.7/dist-packages/stratum/websocket_transport.py:1
+~/.virtualenvs/rskstratum/local/lib/python2.7/site-packages/stratum/websocket_transport.py:1
 
 from
   > from autobahn.websocket import WebSocketServerProtocol, WebSocketServerFactory
@@ -156,5 +169,14 @@ to
 
   > from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
-Launch command:
+We will switch to the rsk-plugin branch:
+
+  > git checkout rsk-plugin
+
+The pool will be launched through the following command, once the bitcoind instances and rskd instance are running:
+
 > twistd -ny launcher_demo.tac -l -
+
+Once launched, a minerd instance can be pointed at the server:
+
+> minerd -a sha256d -t 2 --url=stratum+tcp://192.168.0.121:3333 --userpass=user:pass
