@@ -106,9 +106,9 @@ class TemplateRegistry(object):
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
 
-        if settings.RSK_NOTIFY_POLICY:
-            if settings.RSK_NOTIFY_POLICY == 1:
-                if block['rsk_flag'] and block['rsk_notify'] is True:
+        if settings.RSK_NOTIFY_POLICY and hasattr(block, 'rsk_flag'):
+            if settings.RSK_NOTIFY_POLICY == 1:                
+                if self.rootstock_rpc.rsk_notify:
                     self.on_template_callback(new_block)
             if settings.RSK_NOTIFY_POLICY == 2:
                 if not rsk_is_old_block:
