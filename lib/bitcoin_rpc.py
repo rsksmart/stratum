@@ -46,7 +46,7 @@ class BitcoinRPC(object):
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SB_RESPONSE]", "data" : data}))
 
     @defer.inlineCallbacks
-    def submitblock(self, block_hex):                
+    def submitblock(self, block_hex):
         resp = (yield self._call('submitblock', [block_hex,]))
         if json.loads(resp)['result'] is None:
             defer.returnValue(True)
@@ -61,16 +61,8 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def getblocktemplate(self):
-        try:
-            resp = (yield self._call('getblocktemplate', [{}]))
-            defer.returnValue(json.loads(resp)['result'])
-        # if internal server error try getblocktemplate without empty {} # ppcoin
-        except Exception as e:
-            if (str(e) == "500 Internal Server Error"):
-                resp = (yield self._call('getblocktemplate', []))
-                defer.returnValue(json.loads(resp)['result'])
-            else:
-                raise
+        resp = (yield self._call('getblocktemplate', []))
+        defer.returnValue(json.loads(resp)['result'])
 
     @defer.inlineCallbacks
     def prevhash(self):

@@ -32,12 +32,11 @@ class MiningSubscription(Subscription):
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
-        logdat = json.dumps(bc_args)
         if rsk_flag:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : bc_args}))
         else:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : bc_args}))
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''

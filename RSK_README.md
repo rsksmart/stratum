@@ -145,7 +145,7 @@ Python 2.7 must be installed. If it is not, this guide should be followed:
 
 On Linux we must also install some additional packages.
 
-  > sudo apt-get install python-pip python-dev libffi-dev libssl-dev libxml2-dev libxslt1-dev libjpeg8-dev zlib1g-dev
+  > sudo apt-get install build-essential python-pip python-dev libffi-dev libssl-dev libxml2-dev libxslt1-dev libjpeg8-dev zlib1g-dev
 
 Pip must also be installed in order to install the required python packages. [Pip installation instructions](https://pip.pypa.io/en/stable/installing/)
 
@@ -159,7 +159,7 @@ We will be in the rskstratum virtual environment, in which we must install sever
 
   > pip install twisted pyopenssl stratum simplejson pycrypto
 
-A Stratum library file must be modified:
+A Stratum library file must be modified due to this [issue](https://github.com/Crypto-Expert/stratum-mining/issues/90):
 ~/.virtualenvs/rskstratum/local/lib/python2.7/site-packages/stratum/websocket_transport.py:1
 
 from

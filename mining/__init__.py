@@ -30,26 +30,18 @@ def setup(on_startup):
     import stratum.logger
     log = stratum.logger.get_logger('mining')
 
-    try:
-        bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
-                                 settings.BITCOIN_TRUSTED_PORT,
-                                 settings.BITCOIN_TRUSTED_USER,
-                                 settings.BITCOIN_TRUSTED_PASSWORD)
-        if settings.RSK_TRUSTED_HOST and settings.RSK_TRUSTED_PORT and settings.RSK_TRUSTED_USER and settings.RSK_TRUSTED_PASSWORD:
-            rootstock_rpc = RootstockRPC(settings.RSK_TRUSTED_HOST,
-                                         settings.RSK_TRUSTED_PORT,
-                                         settings.RSK_TRUSTED_USER,
-                                         settings.RSK_TRUSTED_PASSWORD)
-        else:
-            rootstock_rpc = None
-    except AttributeError as e:
-        if e.message == "'module' object has no attribute 'RSK_TRUSTED_HOST'":
-            log.debug("No RSK configuration data")
-            bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
-                                     settings.BITCOIN_TRUSTED_PORT,
-                                     settings.BITCOIN_TRUSTED_USER,
-                                     settings.BITCOIN_TRUSTED_PASSWORD)
-            rootstock_rpc = None
+    if hasattr(settings, 'RSK_TRUSTED_HOST'):
+        rootstock_rpc = RootstockRPC(settings.RSK_TRUSTED_HOST,
+                                     settings.RSK_TRUSTED_PORT,
+                                     settings.RSK_TRUSTED_USER,
+                                     settings.RSK_TRUSTED_PASSWORD)
+    else:
+        rootstock_rpc = None
+
+    bitcoin_rpc = BitcoinRPC(settings.BITCOIN_TRUSTED_HOST,
+                             settings.BITCOIN_TRUSTED_PORT,
+                             settings.BITCOIN_TRUSTED_USER,
+                             settings.BITCOIN_TRUSTED_PASSWORD)
 
     log.info('Waiting for bitcoin RPC...')
 
@@ -59,11 +51,8 @@ def setup(on_startup):
             if isinstance(result, dict):
                 log.info('Response from bitcoin RPC OK')
                 break
-
         except Exception as e:
-            #traceback.print_exc()
-            #log.info('exception:')
-            time.sleep(5000)
+            time.sleep(1)
 
     coinbaser = SimpleCoinbaser(bitcoin_rpc, settings.CENTRAL_WALLET)
     (yield coinbaser.on_load)

@@ -58,6 +58,7 @@ class TemplateRegistry(object):
         self.update_block()
         if rootstock_rpc is not None:
             self.rsk_update_block()
+            self.rsk_timeout_counter = 0
 
     def get_new_extranonce1(self):
         '''Generates unique extranonce1 (e.g. for newly
@@ -105,16 +106,19 @@ class TemplateRegistry(object):
             # Tell the system about new block
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
-
-        if settings.RSK_NOTIFY_POLICY and hasattr(block, 'rsk_flag'):
-            if settings.RSK_NOTIFY_POLICY == 1:                
+        call = False
+        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag'):
+            if settings.RSK_NOTIFY_POLICY == 1:
                 if self.rootstock_rpc.rsk_notify:
-                    self.on_template_callback(new_block)
+                    call = True
             if settings.RSK_NOTIFY_POLICY == 2:
                 if not rsk_is_old_block:
-                    self.on_template_callback(new_block)
+                    call = True
         else:
             # Everything is ready, let's broadcast jobs!
+            call = True
+
+        if call:
             self.on_template_callback(new_block)
 
 
@@ -175,7 +179,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start})) #[BTC_WORK_RECEIVED]
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : self.last_block.__dict__['broadcast_args']})) #[BTC_WORK_RECEIVED]
         self.update_in_progress = False
         return data
 
@@ -208,7 +212,7 @@ class TemplateRegistry(object):
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
         start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0}))
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']}))
         self.rsk_update_in_progress = False
         return self.last_data
 
@@ -216,9 +220,14 @@ class TemplateRegistry(object):
         log.error("_RSK_GETWORK_ERR: " + str(err))
         self.rsk_update_in_progress = False
         if "111: Connection refused" in str(err):
-            log.info("Shutting down RootstockRPC")
-            self.rootstock_rpc.shutdown()
-            self.rootstock_rpc = None
+            if self.rsk_timeout_counter < 3:
+                log.info("RSKD Connection refused... trying %d more times", 3 - self.rsk_timeout_counter)
+                self.rsk_timeout_counter += 1
+            else:
+                log.info("RSKD Connection refused... shutting down")
+                self.rootstock_rpc.shutdown()
+                self.rootstock_rpc = None
+
 
     def diff_to_target(self, difficulty):
         '''Converts difficulty to target'''
