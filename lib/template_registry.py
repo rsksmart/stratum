@@ -56,9 +56,11 @@ class TemplateRegistry(object):
 
         # Create first block template on startup
         self.update_block()
-        if rootstock_rpc is not None:
-            self.rsk_update_block()
+        if self.rootstock_rpc is not None:
             self.rsk_timeout_counter = 0
+
+    def log_share_recieved(self, uuid, start, data):
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : uuid, "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : data}))
 
     def get_new_extranonce1(self):
         '''Generates unique extranonce1 (e.g. for newly
@@ -107,7 +109,7 @@ class TemplateRegistry(object):
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
         call = False
-        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag'):
+        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag') and settings.RSK_NOTIFY_POLICY is not None:
             if settings.RSK_NOTIFY_POLICY == 1:
                 if self.rootstock_rpc.rsk_notify:
                     call = True
@@ -138,13 +140,11 @@ class TemplateRegistry(object):
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
         self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
-        if self.rootstock_rpc.rsk_header is not None:
-            self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
+        self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
         self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
-        if self.rootstock_rpc.rsk_parent_hash is not None:
-            self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
+        self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
-        self.rootstock_rpc.rsk_diff = data['target']
+        self.rootstock_rpc.rsk_target = data['target']
         self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
         self.rootstock_rpc.rsk_notify = data['notify']
 
@@ -165,6 +165,9 @@ class TemplateRegistry(object):
         d.addCallback(self._update_block, btc_block_received_id)
         d.addErrback(self._update_block_failed)
 
+        if self.rootstock_rpc is not None:
+            self.rsk_update_block()
+
     def _update_block_failed(self, failure):
         log.error(str(failure))
         self.update_in_progress = False
@@ -179,7 +182,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : self.last_block.__dict__['broadcast_args']})) #[BTC_WORK_RECEIVED]
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args'][0]})) #job_id
         self.update_in_progress = False
         return data
 
@@ -206,13 +209,13 @@ class TemplateRegistry(object):
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
         self.last_data['rsk_flag'] = True
-        self.last_data['rsk_diff'] = self.rootstock_rpc.rsk_diff
+        self.last_data['rsk_target'] = self.rootstock_rpc.rsk_target
         self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
         self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
         start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']}))
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args'][0]})) #job_id
         self.rsk_update_in_progress = False
         return self.last_data
 
@@ -345,23 +348,17 @@ class TemplateRegistry(object):
 
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
-            if 'rsk_flag' in job.__dict__ and job.__dict__['rsk_flag'] is True:
-                if 'btc_target' in job.__dict__ and hash_int <= job.btc_target:
-                    on_submit = self.bitcoin_rpc.submitblock(serialized)
-                    self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry so its not critical
-                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"btc_share" : True, "rsk_share" : 'rsk_flag' in job.__dict__}}))
-                else:
-                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
-                    on_submit = self.rootstock_rpc.submitblock(serialized)
-                if on_submit is None:
-                    log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
-                    on_submit = self.rootstock_rpc.submitblock(serialized)
-            else:
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : {"btc_share" : True}}))
+            log.info("SUBMIT SHARE: %s", job.__dict__)
+            if hasattr(job, 'rsk_flag') and job.__dict__['rsk_flag'] is True and hash_int <= job.__dict__['rsk_target']:
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
+                self.rootstock_rpc.submitblock(serialized) # The callback only sends a log entry so its not critical
+                self.log_share_recieved(util.id_generator(), start, {"btc_share" : True, "rsk_share" : 'rsk_flag' in job.__dict__})
+            else:
+                on_submit = self.bitcoin_rpc.submitblock(serialized)
+                self.log_share_recieved(util.id_generator(), start, {"btc_share" : True})
 
             if "rsk_flag" in job.__dict__:
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : {"rsk_flag" : 'rsk_flag' in job.__dict__}}))
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
             else:
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
 

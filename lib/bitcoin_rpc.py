@@ -42,9 +42,6 @@ class BitcoinRPC(object):
                 'id': '1',
             }))
 
-    def _sb_debug_callback(self, data):
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SB_RESPONSE]", "data" : data}))
-
     @defer.inlineCallbacks
     def submitblock(self, block_hex):
         resp = (yield self._call('submitblock', [block_hex,]))

@@ -6,8 +6,6 @@
 
 import time
 from twisted.internet import reactor, defer
-import json
-from lib import util
 import stratum.logger
 log = stratum.logger.get_logger('interfaces')
 

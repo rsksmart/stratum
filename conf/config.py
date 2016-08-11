@@ -58,7 +58,8 @@ RSK_TRUSTED_PORT = 4444
 RSK_TRUSTED_USER = 'admin'
 RSK_TRUSTED_PASSWORD = 'admin'
 
-#RSK_STRATUM_SET_DIFFICULTY = 1
+#RSK_DEV_MODE = 0
+#RSK_STRATUM_TARGET = 1
 
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
@@ -79,6 +80,6 @@ DATABASE_PASSWORD = '**empty**'
 # Pool related settings
 INSTANCE_ID = 31
 CENTRAL_WALLET = 'mugoej7QP1FWDu4DCJysmd65nRiVrrXTSq'
-PREVHASH_REFRESH_INTERVAL = 30 # in sec
-MERKLE_REFRESH_INTERVAL = 60 # How often check memorypool
+PREVHASH_REFRESH_INTERVAL = 60 # in sec
+MERKLE_REFRESH_INTERVAL = 120 # How often check memorypool
 COINBASE_EXTRAS = '/rsk_stratum/'

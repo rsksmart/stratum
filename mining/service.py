@@ -58,8 +58,8 @@ class MiningService(GenericService):
 
         session = self.connection_ref().get_session()
         session['extranonce1'] = extranonce1
-        if hasattr(settings, 'RSK_STRATUM_SET_DIFFICULTY'):
-            session['difficulty'] = settings.RSK_STRATUM_SET_DIFFICULTY
+        if hasattr(settings, 'RSK_STRATUM_TARGET'):
+            session['difficulty'] = settings.RSK_STRATUM_TARGET
         else:
             session['difficulty'] = 1 # Following protocol specs, default diff is 1
 
@@ -124,9 +124,6 @@ class MiningService(GenericService):
             # to result and report it to share manager
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
-            logdat = json.dumps({"worker_name" : worker_name, "job_id" : job_id, "extranonce2" : extranonce2, "ntime" : ntime, "nonce" : nonce})
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : logdat}))
-
         return True
 
     # Service documentation for remote discovery

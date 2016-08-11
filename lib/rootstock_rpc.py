@@ -34,7 +34,7 @@ class RootstockRPC(object):
         self.rsk_blockhashformergedmining = None
         self.rsk_header = None
         self.rsk_last_header = None
-        self.rsk_diff = None
+        self.rsk_target = None
         self.rsk_miner_fees = None
         self.rsk_parent_hash = None
         self.rsk_last_parent_hash = None

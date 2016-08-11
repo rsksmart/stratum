@@ -18,24 +18,20 @@ class MiningSubscription(Subscription):
         '''This is called when TemplateRegistry registers
            new block which we have to broadcast clients.'''
         start = Interfaces.timestamper.time()
-        rsk_flag = False
         clean_jobs = is_new_block
         #(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, rsk_job) = \
         #                Interfaces.template_registry.get_last_broadcast_args()
         bc_args = Interfaces.template_registry.get_last_broadcast_args()
-        if len(bc_args) == 10:
-            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, rsk_flag) = bc_args
-        else:
-            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
+        (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, rsk_flag) = bc_args
         # Push new job to subscribed clients
         cls.emit(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
 
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         if rsk_flag:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : bc_args}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id}))
         else:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : bc_args}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id}))
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
@@ -50,8 +46,8 @@ class MiningSubscription(Subscription):
 
         # Force set higher difficulty
         # TODO
-        if hasattr(settings, 'RSK_STRATUM_SET_DIFFICULTY'):
-            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_SET_DIFFICULTY,], is_notification=True)
+        if hasattr(settings, 'RSK_STRATUM_TARGET'):
+            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_TARGET,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
         # Force client to remove previous jobs if any (eg. from previous connection)

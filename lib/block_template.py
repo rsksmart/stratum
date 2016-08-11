@@ -33,11 +33,12 @@ class BlockTemplate(halfnode.CBlock):
         self.timedelta = 0
         self.curtime = 0
         self.target = 0
-        self.btc_target = 0 # store to check if rsk results are also good for btcd submission
+        self.rsk_target = 0
         #self.coinbase_hex = None
         self.merkletree = None
         if rsk != None:
             self.rsk_flag = True
+
 
         self.broadcast_args = []
 
@@ -76,11 +77,9 @@ class BlockTemplate(halfnode.CBlock):
         self.curtime = data['curtime']
         self.timedelta = self.curtime - int(self.timestamper.time())
         self.merkletree = mt
+        self.target = util.uint256_from_compact(self.nBits)
         if 'rsk_flag' in data:
-            self.target = int(data['rsk_diff'], 16)
-        else:
-            self.target = util.uint256_from_compact(self.nBits)
-            self.btc_target = self.target
+            self.rsk_target = data['rsk_target']
 
         # Reversed prevhash
         self.prevhash_bin = binascii.unhexlify(util.reverse_hash(data['previousblockhash']))
@@ -113,11 +112,10 @@ class BlockTemplate(halfnode.CBlock):
         nbits = binascii.hexlify(struct.pack(">I", self.nBits))
         ntime = binascii.hexlify(struct.pack(">I", self.curtime))
         clean_jobs = True
-        if self.btc_target is not 0:
-            rsk_job = True
-            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, rsk_job)
+        if self.rsk_target == 0:
+            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, False)
         else:
-            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
+            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, True)
 
     def serialize_coinbase(self, extranonce1, extranonce2):
         '''Serialize coinbase with given extranonce1 and extranonce2
