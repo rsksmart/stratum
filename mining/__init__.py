@@ -3,6 +3,7 @@ from subscription import MiningSubscription
 from twisted.internet import defer
 import time
 import traceback
+import os
 
 @defer.inlineCallbacks
 def setup(on_startup):
@@ -29,6 +30,12 @@ def setup(on_startup):
 
     import stratum.logger
     log = stratum.logger.get_logger('mining')
+    log.info("CWD: %s", os.getcwd())
+    log.info("### INITIALIZING RSK STRATUM - CONFIG.PY DUMP ###")
+    with open("conf/config.py", "r") as f:
+        for line in f:
+            log.info(line)
+    log.info("### INITIALIZING RSK STRATUM - END CONFIG.PY DUMP ###")
 
     if hasattr(settings, 'RSK_TRUSTED_HOST'):
         rootstock_rpc = RootstockRPC(settings.RSK_TRUSTED_HOST,

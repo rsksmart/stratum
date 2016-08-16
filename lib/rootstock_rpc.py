@@ -10,6 +10,7 @@ from mining.interfaces import Interfaces
 from lib import util
 from util import Singleton
 import stratum.logger
+from stratum import settings
 log = stratum.logger.get_logger('rootstock_rpc')
 
 class RootstockRPC(object):
@@ -21,6 +22,7 @@ class RootstockRPC(object):
     def __init__(self, rsk_host, rsk_port, rsk_username, rsk_password):
         log.debug("Got to Rootstock RPC")
         client.HTTPClientFactory.noisy = False
+        client.HTTPClientFactory.timeout = settings.RSK_POLL_PERIOD
         self.active = True
 
         self.rskd_url = 'http://%s:%d' % (rsk_host, rsk_port)

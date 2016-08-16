@@ -225,13 +225,14 @@ class TemplateRegistry(object):
         log.error("_RSK_GETWORK_ERR: " + str(err))
         self.rsk_update_in_progress = False
         if "111: Connection refused" in str(err):
+            log.info("RSKD Connection refused...")
             if self.rsk_timeout_counter < 3:
                 log.info("RSKD Connection refused... trying %d more times", 3 - self.rsk_timeout_counter)
+                self.rsk_update_block()
                 self.rsk_timeout_counter += 1
             else:
-                log.info("RSKD Connection refused... shutting down")
-                self.rootstock_rpc.shutdown()
-                self.rootstock_rpc = None
+                log.info("RSKD Connection refused trying again in %s seconds", settings.RSK_POLL_PERIOD)
+                self.rsk_timeout_counter = 0
 
 
     def diff_to_target(self, difficulty):
@@ -352,6 +353,7 @@ class TemplateRegistry(object):
             if rskSolution:
                 log.info("#### RSKSOLUTION ### %s", job.rsk_target)
                 self.rootstock_rpc.submitblock(serialized)
+                self.rsk_update_block()
                 self.log_share_recieved(util.id_generator(), start, {"rsk_share" : True})
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
 
