@@ -98,7 +98,10 @@ class MiningService(GenericService):
         if not extranonce1_bin:
             raise SubmitException("Connection is not subscribed for mining")
 
-        difficulty = session['difficulty']
+        if hasattr(settings, 'RSK_STRATUM_TARGET'):
+            difficulty = settings.RSK_STRATUM_TARGET
+        else:
+            difficulty = session['difficulty']
         submit_time = Interfaces.timestamper.time()
 
         Interfaces.share_limiter.submit(self.connection_ref, difficulty, submit_time)

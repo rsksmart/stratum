@@ -79,7 +79,10 @@ class BlockTemplate(halfnode.CBlock):
         self.merkletree = mt
         self.target = util.uint256_from_compact(self.nBits)
         if 'rsk_flag' in data:
-            self.rsk_target = data['rsk_target']
+            if settings.RSK_DEV_MODE:
+                self.rsk_target = int(settings.RSK_DEV_TARGET)
+            else:
+                self.rsk_target = int(data['rsk_target'])
 
         # Reversed prevhash
         self.prevhash_bin = binascii.unhexlify(util.reverse_hash(data['previousblockhash']))

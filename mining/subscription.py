@@ -29,9 +29,9 @@ class MiningSubscription(Subscription):
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         if rsk_flag:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id, "clients" : cnt}))
         else:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : job_id, "clients" : cnt}))
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
@@ -39,13 +39,13 @@ class MiningSubscription(Subscription):
         start = Interfaces.timestamper.time()
         try:
             bc_args = Interfaces.template_registry.get_last_broadcast_args()
-            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
-        except Exception:
+            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _, _) = bc_args
+        except Exception as e:
+            log.info("EXCEPTION: %s - %s", e, result)
             log.error("Template not ready yet")
             return result
 
         # Force set higher difficulty
-        # TODO
         if hasattr(settings, 'RSK_STRATUM_TARGET'):
             self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_TARGET,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
