@@ -30,7 +30,6 @@ def setup(on_startup):
 
     import stratum.logger
     log = stratum.logger.get_logger('mining')
-    log.info("CWD: %s", os.getcwd())
     log.info("### INITIALIZING RSK STRATUM - CONFIG.PY DUMP ###")
     with open("conf/config.py", "r") as f:
         for line in f:
