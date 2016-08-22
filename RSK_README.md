@@ -126,11 +126,11 @@ RootstockJ
 
   > gradle shadow
 
-- The fat jar will be generated in ethereumj-core/build/libs/
+- The fat jar will be generated in ethereumj-core/build/libs/, rename it to rootstock.jar
 
 3) Run miner
 
-  > java -Dethereumj.conf.file=node1.conf -cp rootstock.jar io.rootstock.Start
+  > java -Dethereumj.conf.file=../../src/main/resources/node1.conf -cp rootstock.jar io.rootstock.Start
 
   - rootstock.jar is the name of the fatjar.
   - Configuration file for node1 is named node1.conf.
