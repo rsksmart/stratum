@@ -118,21 +118,22 @@ class TemplateRegistry(object):
         btc_block_received_id = util.id_generator()
         log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_START]", "start" : btc_block_received_start, "elapsed" : 0, "uuid" : btc_block_received_id}))
         d = self.bitcoin_rpc.getblocktemplate()
-        d.addCallback(self._update_block, btc_block_received_start, btc_block_received_id)
+        d.addCallback(self._update_block, btc_block_received_id)
         d.addErrback(self._update_block_failed)
 
     def _update_block_failed(self, failure):
         log.error(str(failure))
         self.update_in_progress = False
 
-    def _update_block(self, data, start, log_id):
+    def _update_block(self, data, log_id):
+        start = Interfaces.timestamper.time()
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
         template.fill_from_rpc(data)
         self.add_template(template)
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : log_id, "data" : json.dumps(data)}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "uuid" : log_id, "data" : self.last_block.__dict__['broadcast_args'][0]}))
 
         self.update_in_progress = False
         return data
