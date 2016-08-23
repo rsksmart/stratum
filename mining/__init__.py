@@ -34,6 +34,12 @@ def setup(on_startup):
 
     log.info('Waiting for bitcoin RPC...')
 
+    log.info("### INITIALIZING STRATUM - CONFIG.PY DUMP ###")
+    with open("conf/config.py", "r") as f:
+        for line in f:
+            log.info(line)
+    log.info("### INITIALIZING STRATUM - END CONFIG.PY DUMP ###")
+
     while True:
         try:
             result = (yield bitcoin_rpc.getblocktemplate())
