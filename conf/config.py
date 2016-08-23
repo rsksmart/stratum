@@ -51,6 +51,8 @@ BITCOIN_TRUSTED_PORT = 32591
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
 
+RSK_STRATUM_TARGET = 0.01
+
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
 # for calculating SHA256 of your preferred password
 ADMIN_PASSWORD_SHA256 = None

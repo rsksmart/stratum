@@ -3,6 +3,7 @@ from mining.interfaces import Interfaces
 import json
 import stratum.logger
 from lib import util
+from stratum import settings
 log = stratum.logger.get_logger('subscription')
 
 class MiningSubscription(Subscription):
@@ -29,7 +30,7 @@ class MiningSubscription(Subscription):
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         logdat = json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
                              "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : start, "elapsed" : 0, "uuid" : util.id_generator(), "data" : job_id, "clients" : cnt}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(), "data" : job_id, "clients" : cnt}))
         log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(),
                              "data" : logdat}))
 
@@ -45,7 +46,8 @@ class MiningSubscription(Subscription):
 
         # Force set higher difficulty
         # TODO
-        #self.connection_ref().rpc('mining.set_difficulty', [2,], is_notification=True)
+        if hasattr(settings, 'RSK_STRATUM_TARGET'):
+            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_TARGET,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
         # Force client to remove previous jobs if any (eg. from previous connection)
