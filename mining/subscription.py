@@ -29,9 +29,9 @@ class MiningSubscription(Subscription):
         cnt = Pubsub.get_subscription_count(cls.event)
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         if rsk_flag:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : job_id, "clients" : cnt}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args, "clients" : cnt}))
         else:
-            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : job_id, "clients" : cnt}))
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args, "clients" : cnt}))
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):

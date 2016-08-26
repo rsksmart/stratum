@@ -3,6 +3,8 @@ from stratum import settings
 
 import util
 import json
+import psutil
+import os
 from mining.interfaces import Interfaces
 
 import stratum.logger
@@ -37,9 +39,11 @@ class BlockUpdater(object):
 
     @defer.inlineCallbacks
     def run(self):
+        pid = psutil.Process(os.getpid())
         update = False
 
         try:
+            log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[PROCESS]", "start" : Interfaces.timestamper.time(), "data" : {"threads" : [{"pid" : x[0], "cpu_percent" : psutil.Process(x[0]).cpu_percent()} for x in pid.threads()], "memory_percent" : pid.memory_percent()}}))
             if self.registry.last_block:
                 current_prevhash = "%064x" % self.registry.last_block.hashPrevBlock
             else:

@@ -1,6 +1,7 @@
 import weakref
 import json
 import binascii
+import jsonpickle
 import util
 import StringIO
 from stratum import settings
@@ -58,9 +59,6 @@ class TemplateRegistry(object):
         self.update_block()
         if self.rootstock_rpc is not None:
             self.rsk_timeout_counter = 0
-
-    def log_share_recieved(self, uuid, start, data):
-        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED]", "uuid" : uuid, "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : data}))
 
     def get_new_extranonce1(self):
         '''Generates unique extranonce1 (e.g. for newly
@@ -185,7 +183,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args'][0]})) #job_id
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']})) 
         self.update_in_progress = False
         return data
 
@@ -217,7 +215,7 @@ class TemplateRegistry(object):
         template.fill_from_rpc(self.last_data)
         self.add_template(template)
         start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args'][0]})) #job_id
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']})) #job_id
         self.rsk_update_in_progress = False
         return self.last_data
 
@@ -274,6 +272,7 @@ class TemplateRegistry(object):
         '''
         logid = util.id_generator()
         start = Interfaces.timestamper.time()
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_START]", "uuid" : logid, "start" : start, "elapsed" : 0}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
@@ -325,6 +324,8 @@ class TemplateRegistry(object):
         block_hash_hex = "%064x" % hash_int
         header_hex = binascii.hexlify(header_bin)
 
+        log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_HEX]", "uuid" : logid, "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : block_hash_hex}))
+
         if not settings.RSK_DEV_MODE:
             target_user = self.diff_to_target(difficulty)
             if hash_int > target_user:
@@ -345,17 +346,13 @@ class TemplateRegistry(object):
             job.finalize(merkle_root_int, extranonce1_bin, extranonce2_bin, int(ntime, 16), int(nonce, 16))
             on_submit = None
             serialized = binascii.hexlify(job.serialize())
-            if btcSolution:
-                log.info("### btcSolution ### %s", job.target)
-                on_submit = self.bitcoin_rpc.submitblock(serialized)
-                self.log_share_recieved(util.id_generator(), start, {"btc_share" : True})
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
             if rskSolution:
-                log.info("#### RSKSOLUTION ### %s", job.rsk_target)
-                self.rootstock_rpc.submitblock(serialized)
+                on_submit = self.rootstock_rpc.submitblock(serialized)
                 self.rsk_update_block()
-                self.log_share_recieved(util.id_generator(), start, {"rsk_share" : True})
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time()}))
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
+            if btcSolution:
+                on_submit = self.bitcoin_rpc.submitblock(serialized)
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
 
             return (header_hex, block_hash_hex, on_submit)
 
