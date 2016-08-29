@@ -31,8 +31,7 @@ class MiningSubscription(Subscription):
         logdat = json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
                              "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})
         log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(), "data" : job_id, "clients" : cnt}))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(),
-                             "data" : logdat}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''

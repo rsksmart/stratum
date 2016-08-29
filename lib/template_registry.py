@@ -133,7 +133,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "uuid" : log_id, "data" : self.last_block.__dict__['broadcast_args'][0]}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "uuid" : log_id, "data" : self.last_block.__dict__['broadcast_args']}))
 
         self.update_in_progress = False
         return data
@@ -176,6 +176,8 @@ class TemplateRegistry(object):
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
         start = Interfaces.timestamper.time()
+        logid = util.id_generator()
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_START]", "start" : start, "elapsed" : 0}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
             raise SubmitException("Incorrect size of extranonce2. Expected %d chars" % (self.extranonce2_size*2))
@@ -227,6 +229,8 @@ class TemplateRegistry(object):
         block_hash_hex = "%064x" % hash_int
         header_hex = binascii.hexlify(header_bin)
 
+        log.info(json.dumps({"uuid" : logid, "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_HEX]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : block_hash_hex}))
+
         target_user = self.diff_to_target(difficulty)
         if hash_int > target_user:
             raise SubmitException("Share is above target")
@@ -250,8 +254,8 @@ class TemplateRegistry(object):
 
             # 7. Submit block to the network
             serialized = binascii.hexlify(job.serialize())
-            log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
             on_submit = self.bitcoin_rpc.submitblock(serialized)
+            log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : block_hash_hex}))
 
             return (header_hex, block_hash_hex, on_submit)
 
