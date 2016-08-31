@@ -43,6 +43,7 @@ class RSKParser:
         self.rsk_submitblock          = []
         self.btc_submitblock          = []
         self.line_count = 1
+        self.submitblock_end = []
         self.dumping_conf             = True
         self.confpy                   = []
         self.swb = Workbook()
@@ -103,7 +104,7 @@ class RSKParser:
         # A logged line can contain a '\n', so we join them before parsing
         with open(self.filename, "r") as f:
             for line in f:
-                sys.stdout.write("Parsing line number %d, excel row %d   \r" % (self.line_count, self.sws_rowcount))
+                sys.stdout.write("Parsing line number %d   \r" % self.line_count)
                 sys.stdout.flush()
                 self.parseline(line)
                 self.line_count += 1
@@ -128,16 +129,8 @@ class RSKParser:
                 if len(ln) > 1:
                     self.confpy.append(ln[1])
 
-        if self.rskmode:
-            if line.find("RSKLOG") < 0:
-                return
-        else:
-            if line.find("STRLOG") < 0:
-                return
-
-        if not self.complete:
-            if line.find("SHARE_RECEIVED") < 0 and line.find("SUBMITBLOCK") < 0 and line.find("BLOCK_RECEIVED") < 0:
-                return
+        if line.find("RSKLOG") < 0 and line.find("STRLOG") < 0 and line.find("ACCEPTED") < 0 and line.find("REJECTED") < 0 and line.find("MINNOT"):
+            return
 
         if line.find("MINER EMIT") > 0:
             return
@@ -145,6 +138,17 @@ class RSKParser:
         if self.notify and line.find("MINNOT") > 0:
             res = ast.literal_eval(line.split('#')[1].strip())
             event = res['tag']
+        elif line.find("ACCEPTED") > 0:
+            block = line.split('#')[1].split(' ')[2]
+            self.process_submitblock_event(block)
+            return
+        elif line.find("REJECTED") > 0:
+            block = line.split('#')[1].split(' ')[2]
+            self.submitblock_end = [x for x in self.submitblock_end if x['data'] != block]
+            self.btc_submitblock = [x for x in self.btc_submitblock if x['data'] != block]
+            if self.rskmode:
+                self.rsk_submitblock = [x for x in self.rsk_submitblock if x['data'] != block]
+            return
         else:
             res = json.loads(line.split('#')[1].strip())
             event = res['tag']
@@ -160,7 +164,6 @@ class RSKParser:
                     else:
                         self.notify_events.append(res)
                 else:
-                    print "notify id blank, getting %s" % res['data']
                     self.curr_notify_id = res['data']
                     self.notify_events.append(res)
 
@@ -196,6 +199,8 @@ class RSKParser:
                 self.swb_ws.append([res['uuid'], self.timestamp_to_str(res['start']), (float(res['elapsed'] * 1000))])
             elif event == "[WORK_SENT_OLD]":
                 self.swb_wso.append([res['uuid'], self.timestamp_to_str(res['start']), (float(res['elapsed'] * 1000))])
+            elif event == "[PROCESS]":
+                self.swb_process.append([self.timestamp_to_str(res['start']), res['data']['threads'][0]['cpu_percent'], res['data']['threads'][1]['cpu_percent'], res['data']['memory_percent']])
 
         if event == "[BTC_BLOCK_RECEIVED_START]":
             if self.debug:
@@ -224,10 +229,8 @@ class RSKParser:
         elif event == "[SUBMITBLOCK_END]":
             if self.debug:
                 self.swb_sb.append([res['uuid'], res['start'], res['data']])
-            self.process_submitblock_event(res)
-        elif event == "[PROCESS]":
-            self.swb_process.append([self.timestamp_to_str(res['start']), res['data']['threads'][0]['cpu_percent'], res['data']['threads'][1]['cpu_percent'], res['data']['memory_percent']])
-
+            self.submitblock_end.append(res)
+            #self.process_submitblock_event(res)
 
     def timestamp_to_str(self, tm):
         return datetime.fromtimestamp(tm).strftime('%Y-%m-%d %H:%M:%S.%f')
@@ -283,30 +286,30 @@ class RSKParser:
         else:
             n_ev["delta_emit"] = delta_ms(match["start"], (float(ev["start"]) + float(ev["elapsed"])))
         n_ev["hex"] = ev["data"]
-        if self.rskmode:
-            if 'BTC' in match['tag']:
-                self.share_received_hex = [x for x in self.share_received_hex if x['data'] != shhex_match['data']]
-                self.share_received_start = [x for x in self.share_received_start if x['uuid'] != shstr_match['uuid']]
-        else:
-            self.share_received_hex = [x for x in self.share_received_hex if x['data'] != shhex_match['data']]
-            self.share_received_start = [x for x in self.share_received_start if x['uuid'] != shstr_match['uuid']]
-            self.share_received_hex = [x for x in self.share_received_hex if x['start'] < (ev['start'] - 60)]
-            self.share_received_start = [x for x in self.share_received_start if x['start'] < (ev['start'] - 60)]
+
+        self.share_received_hex = [x for x in self.share_received_hex if x['start'] < (ev['start'] - 60)]
+        self.share_received_start = [x for x in self.share_received_start if x['start'] < (ev['start'] - 60)]
+        self.submitblock_end = [x for x in self.submitblock_end if x['start'] < (ev['start'] - 60)]
+        self.rsk_submitblock = [x for x in self.rsk_submitblock if x['start'] < (ev['start'] - 60)]
+        self.btc_submitblock = [x for x in self.btc_submitblock if x['start'] < (ev['start'] - 60)]
 
         return n_ev
 
     def process_submitblock_event(self, ev):
+        #print ev
+        sbend_match = [x for x in self.submitblock_end if x['data'] == ev][0]
+        #print sbend_match
         if self.rskmode and self.complete:
-            rsksb_match = [x for x in self.rsk_submitblock if x['data'] == ev['data']]
+            rsksb_match = [x for x in self.rsk_submitblock if x['data'] == sbend_match['data']]
             if len(rsksb_match) > 0:
-                rdat = self.sb_match_helper(rsksb_match[0], ev)
+                rdat = self.sb_match_helper(rsksb_match[0], sbend_match)
                 self.sws.append(["submitblock", rdat['start'], rdat['delta_process'], rdat['hex'], 1, rdat['delta_emit'], "RSK"])
-                self.rsk_submitblock = [x for x in self.rsk_submitblock if x['data'] != ev['data']]
-        btcsb_match = [x for x in self.btc_submitblock if x['data'] == ev['data']]
+                self.rsk_submitblock = [x for x in self.rsk_submitblock if x['data'] != sbend_match['data']]
+        btcsb_match = [x for x in self.btc_submitblock if x['data'] == sbend_match['data']]
         if len(btcsb_match) > 0:
-            dat = self.sb_match_helper(btcsb_match[0], ev)
+            dat = self.sb_match_helper(btcsb_match[0], sbend_match)
             self.sws.append(["submitblock", dat['start'], dat['delta_process'], dat['hex'], 1, dat['delta_emit']])
-            self.btc_submitblock = [x for x in self.btc_submitblock if x['data'] != ev['data']]
+            self.btc_submitblock = [x for x in self.btc_submitblock if x['data'] != sbend_match['data']]
 
 def main():
     logfile = RSKParser(args.logFile, args.output, args.rskmode, args.complete, args.debug, args.notify)
