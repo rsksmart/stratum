@@ -63,7 +63,7 @@ class BlockUpdater(object):
 
             if update:
                 self.registry.update_block()
-                log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_NEW_WORK_UNIT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_NEW_WORK_UNIT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
         except Exception:
             log.exception("UpdateWatchdog.run failed")
