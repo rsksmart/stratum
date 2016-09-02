@@ -183,7 +183,7 @@ class TemplateRegistry(object):
 
         log.info("Update finished, %.03f sec, %d txes" % \
                     (Interfaces.timestamper.time() - start, len(template.vtx)))
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']})) 
+        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[BTC_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']}))
         self.update_in_progress = False
         return data
 
@@ -270,8 +270,8 @@ class TemplateRegistry(object):
             - difficulty - decimal number from session, again no checks performed
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
-        logid = util.id_generator()
         start = Interfaces.timestamper.time()
+        logid = util.id_generator()
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_START]", "uuid" : logid, "start" : start, "elapsed" : 0}))
         # Check if extranonce2 looks correctly. extranonce2 is in hex form...
         if len(extranonce2) != self.extranonce2_size * 2:
@@ -346,13 +346,16 @@ class TemplateRegistry(object):
             job.finalize(merkle_root_int, extranonce1_bin, extranonce2_bin, int(ntime, 16), int(nonce, 16))
             on_submit = None
             serialized = binascii.hexlify(job.serialize())
-            if rskSolution:
-                on_submit = self.rootstock_rpc.submitblock(serialized)
-                self.rsk_update_block()
-                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
             if btcSolution:
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
+            if rskSolution:
+                if not btcSolution:
+                    on_submit = self.rootstock_rpc.submitblock(serialized)
+                else:
+                    self.rootstock_rpc.submitblock(serialized)
+                self.rsk_update_block()
+                log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
 
             return (header_hex, block_hash_hex, on_submit)
 
