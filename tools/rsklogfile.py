@@ -234,7 +234,10 @@ class RSKParser:
         return datetime.fromtimestamp(tm).strftime('%Y-%m-%d %H:%M:%S.%f')
 
     def process_btc_blockreceived_event(self, ev):
-        end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data']][0]
+        if self.rskmode:
+            end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data']][0]
+        else:
+            end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data'][0]][0]
         sta_match = [x for x in self.btc_block_received_start if x['uuid'] == ev['uuid']][0]
         dat = {"uuid" : sta_match['uuid'], "start" : self.timestamp_to_str(sta_match['start']), "delta_gbt" : delta_ms(sta_match['start'], end_match['start']), "delta_emit" : delta_ms(ev['start'], float(end_match['start'] + end_match['elapsed'])), "clients" : end_match['clients']}
         if self.complete:
