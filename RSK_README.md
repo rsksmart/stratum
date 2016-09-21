@@ -106,6 +106,11 @@ The output should be something like
 }
 ```
 
+Then, generate a new address to add to config.py's CENTRAL_WALLET setting:
+
+> bitcoin-cli -regtest getnewaddress
+
+
 
 RootstockJ
 ----------
@@ -157,7 +162,7 @@ Once these programs are installed, we will make an environment:
 
 We will be in the rskstratum virtual environment, in which we must install several pip packages.
 
-  > pip install twisted pyopenssl stratum simplejson pycrypto
+  > pip install twisted pyopenssl stratum pycrypto psutil
 
 A Stratum library file must be modified due to this [issue](https://github.com/Crypto-Expert/stratum-mining/issues/90):
 ~/.virtualenvs/rskstratum/local/lib/python2.7/site-packages/stratum/websocket_transport.py:1
@@ -180,3 +185,27 @@ The pool will be launched through the following command, once the bitcoind insta
 Once launched, a minerd instance can be pointed at the server:
 
 > minerd -a sha256d -t 2 --url=stratum+tcp://127.0.0.1:3333 --userpass=user:pass
+
+Troubleshooting
+===============
+
+Module not found - psutil
+
+> sudo apt-get install python-psutil
+
+Module not found - Crypto.Hash
+
+> sudo easy_install pycrypto
+
+Configuration Settings
+======================
+
+RSK_DEV_MODE - If true, the pool uses the RSK_DEV_TARGET value to calculate the miners target for a successful job.
+RSK_DEV_TARGET - Difficulty used by the pool to determine if a miners submit will be processed and sent to btcd/rskd.
+RSK_POLL_PERIOD - How often (in seconds) the pool polls RSKD for hashes.
+RSK_NOTIFY_POLICY - Corresponds to the Notify Policy options
+RSK_TRUSTED_HOST - RSK server IP
+RSK_TRUSTED_PORT - RSK server port
+RSK_TRUSTED_USER - RSK server username
+RSK_TRUSTED_PASSWORD - RSK server password
+RSK_STRATUM_TARGET - Option for performing a mining.set_difficulty call for miners. Server default is 1.

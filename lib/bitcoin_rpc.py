@@ -2,7 +2,7 @@
     Implements simple interface to bitcoind's RPC.
 '''
 
-import simplejson as json
+import json
 import base64
 import traceback
 from twisted.internet import defer

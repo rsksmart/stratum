@@ -1,7 +1,6 @@
 import weakref
 import json
 import binascii
-import jsonpickle
 import util
 import StringIO
 from stratum import settings

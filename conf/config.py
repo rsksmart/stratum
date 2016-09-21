@@ -15,7 +15,7 @@ LOGDIR = 'log/'
 LOGFILE = 'stratum.log'
 
 # Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOGLEVEL = 'INFO'
+LOGLEVEL = 'DEBUG'
 
 # How many threads use for synchronous methods (services).
 # 30 is enough for small installation, for real usage
