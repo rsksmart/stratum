@@ -51,7 +51,7 @@ class TemplateRegistry(object):
         self.last_block = None
         self.update_in_progress = False
         self.last_update = None
-        self.rsk_last_update = None
+        self.rsk_last_update = 0
         self.rsk_update_in_progress = False
         self.last_data = dict()
 
@@ -165,9 +165,6 @@ class TemplateRegistry(object):
         d = self.bitcoin_rpc.getblocktemplate()
         d.addCallback(self._update_block, btc_block_received_id)
         d.addErrback(self._update_block_failed)
-
-        if self.rootstock_rpc is not None:
-            self.rsk_update_block()
 
     def _update_block_failed(self, failure):
         log.error(str(failure))
@@ -354,7 +351,6 @@ class TemplateRegistry(object):
                     on_submit = self.rootstock_rpc.submitblock(serialized)
                 else:
                     self.rootstock_rpc.submitblock(serialized)
-                self.rsk_update_block()
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
 
             return (header_hex, block_hash_hex, on_submit)

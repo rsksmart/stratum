@@ -245,7 +245,7 @@ class RSKParser:
         self.sws.append(["getblocktemplate", dat['start'], dat['delta_gbt'], dat['uuid'], dat['clients'], dat['delta_emit']])
         self.btc_block_received_end = [x for x in self.btc_block_received_end if x['uuid'] != end_match['uuid']]
         self.btc_block_received_start = [x for x in self.btc_block_received_start if x['uuid'] != sta_match['uuid']]
-        self.btc_block_received_templ = [x for x in self.rsk_block_received_templ if x['uuid'] != ev['uuid']]
+        self.btc_block_received_templ = [x for x in self.btc_block_received_templ if x['uuid'] != ev['uuid']]
 
     def str_to_timestamp(self, s):
         dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S,%f")

@@ -20,7 +20,7 @@ LOGLEVEL = 'INFO'
 # How many threads use for synchronous methods (services).
 # 30 is enough for small installation, for real usage
 # it should be slightly more, say 100-300.
-THREAD_POOL_SIZE = 10
+THREAD_POOL_SIZE = 200
 
 ENABLE_EXAMPLE_SERVICE = True
 
