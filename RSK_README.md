@@ -159,10 +159,14 @@ We will set up a virtualenv in order to have an environment for Stratum. We will
 Once these programs are installed, we will make an environment:
 
   > mkvirtualenv rskstratum
+  > workon rskstratum
+
 
 We will be in the rskstratum virtual environment, in which we must install several pip packages.
 
-  > pip install twisted pyopenssl stratum pycrypto psutil
+  > pip install twisted pyopenssl pycrypto psutil simplejson six
+
+Two files are provided (stratum.tar.gz, stratum-0.2.15.dist-info.tar.gz), these must be uncompressed in ~/.virtualenvs/rskstratum/local/lib/python2.7/site-packages/.
 
 A Stratum library file must be modified due to this [issue](https://github.com/Crypto-Expert/stratum-mining/issues/90):
 ~/.virtualenvs/rskstratum/local/lib/python2.7/site-packages/stratum/websocket_transport.py:1
@@ -174,17 +178,18 @@ to
 
   > from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
-We will switch to the rsk-plugin branch:
+We will switch to the rsk-plugin-minernot branch:
 
-  > git checkout rsk-plugin
+  > git checkout rsk-plugin-minernot
 
 The pool will be launched through the following command, once the bitcoind instances and rskd instance are running:
 
-> twistd -ny launcher_demo.tac -l -
+  > export PYTHONPATH='.'
+  > twistd -ny launcher_demo.tac -l -
 
 Once launched, a minerd instance can be pointed at the server:
 
-> minerd -a sha256d -t 2 --url=stratum+tcp://127.0.0.1:3333 --userpass=user:pass
+  > minerd -a sha256d -t 2 --url=stratum+tcp://127.0.0.1:3333 --userpass=user:pass
 
 Troubleshooting
 ===============
