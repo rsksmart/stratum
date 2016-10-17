@@ -77,7 +77,10 @@ class BlockTemplate(halfnode.CBlock):
         self.curtime = data['curtime']
         self.timedelta = self.curtime - int(self.timestamper.time())
         self.merkletree = mt
-        self.target = util.uint256_from_compact(self.nBits)
+        if settings.RSK_DEV_MODE:
+            self.target = int(settings.BTC_DEV_TARGET)
+        else:
+            self.target = util.uint256_from_compact(self.nBits)
         if 'rsk_flag' in data:
             if settings.RSK_DEV_MODE:
                 self.rsk_target = int(settings.RSK_DEV_TARGET)
