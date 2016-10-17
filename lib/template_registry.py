@@ -7,6 +7,7 @@ import json
 from twisted.internet import defer
 from lib.exceptions import SubmitException
 
+from stratum import settings
 import stratum.logger
 log = stratum.logger.get_logger('template_registry')
 
@@ -231,9 +232,10 @@ class TemplateRegistry(object):
 
         log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[SHARE_RECEIVED_HEX]", "uuid" : logid, "start" : Interfaces.timestamper.time(), "elapsed" : 0, "data" : block_hash_hex}))
 
-        target_user = self.diff_to_target(difficulty)
-        if hash_int > target_user:
-            raise SubmitException("Share is above target")
+        if not settings.RSK_DEV_MODE:
+            target_user = self.diff_to_target(difficulty)
+            if hash_int > target_user:
+                raise SubmitException("Share is above target")
 
         # Mostly for debugging purposes
         target_info = self.diff_to_target(100000)
