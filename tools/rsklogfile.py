@@ -266,13 +266,9 @@ class RSKParser:
         return n_ev
 
     def process_submitblock_event(self, ev):
-        print ev
         sbend_match = [x for x in self.submitblock_end if x['data'][0] == ev[0]][0]
-        print sbend_match
         btcsb_match = [x for x in self.btc_submitblock if x['data'] == sbend_match['data'][0]]
-        print btcsb_match
         not_match = [x for x in self.p_notify_events if x['id'] == sbend_match['data'][1]]
-        print not_match
         if len(btcsb_match) > 0 and len(not_match) > 0:
             dat = self.sb_match_helper(btcsb_match[0], sbend_match, ev)
             self.sws.append(["submitblock", dat['start'], dat['delta_process'], dat['hex'], 1, (dat['delta_emit'] + not_match[0]["delta_ms"])])
