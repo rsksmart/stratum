@@ -234,10 +234,7 @@ class RSKParser:
         return datetime.fromtimestamp(tm).strftime('%Y-%m-%d %H:%M:%S.%f')
 
     def process_btc_blockreceived_event(self, ev):
-        if self.rskmode:
-            end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data']][0]
-        else:
-            end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data'][0]][0]
+        end_match = [x for x in self.btc_block_received_end if x['data'] == ev['data']][0]
         sta_match = [x for x in self.btc_block_received_start if x['uuid'] == ev['uuid']][0]
         dat = {"uuid" : sta_match['uuid'], "start" : self.timestamp_to_str(sta_match['start']), "delta_gbt" : delta_ms(sta_match['start'], end_match['start']), "delta_emit" : delta_ms(ev['start'], float(end_match['start'] + end_match['elapsed'])), "clients" : end_match['clients']}
         if self.complete:
@@ -257,10 +254,7 @@ class RSKParser:
         shstr_match = [x for x in self.share_received_start if x['uuid'] == shhex_match['uuid']][0]
         n_ev["start"] = self.timestamp_to_str(shstr_match["start"])
         n_ev["delta_process"] = delta_ms(ev["start"], shhex_match["start"])
-        if self.rskmode:
-            n_ev["delta_emit"] = delta_ms(shhex_match["start"], match["elapsed"])
-        else:
-            n_ev["delta_emit"] = delta_ms(shhex_match["start"], match["start"])
+        n_ev["delta_emit"] = delta_ms(shhex_match["start"], match["elapsed"])
         n_ev["hex"] = ev["data"][0]
 
         self.share_received_hex = [x for x in self.share_received_hex if x['start'] < (ev['start'] - 60)]
