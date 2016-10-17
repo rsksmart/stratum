@@ -16,13 +16,12 @@ class MiningSubscription(Subscription):
     def on_template(cls, is_new_block):
         '''This is called when TemplateRegistry registers
            new block which we have to broadcast clients.'''
-
         start = Interfaces.timestamper.time()
-
         clean_jobs = is_new_block
-        (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = \
-                        Interfaces.template_registry.get_last_broadcast_args()
-
+        bc_args = Interfaces.template_registry.get_last_broadcast_args()
+        #(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = \
+        #                Interfaces.template_registry.get_last_broadcast_args()
+        (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
         # Push new job to subscribed clients
         cls.emit(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
 
@@ -30,15 +29,15 @@ class MiningSubscription(Subscription):
         log.info("BROADCASTED to %d connections in %.03f sec" % (cnt, (Interfaces.timestamper.time() - start)))
         logdat = json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
                              "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(), "data" : job_id, "clients" : cnt}))
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator()}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[BTC_BLOCK_RECEIVED_END]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(), "data" : bc_args, "clients" : cnt}))
+        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
 
     def _finish_after_subscribe(self, result):
         '''Send new job to newly subscribed client'''
         start = Interfaces.timestamper.time()
         try:
-            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = \
-                        Interfaces.template_registry.get_last_broadcast_args()
+            bc_args = Interfaces.template_registry.get_last_broadcast_args()
+            (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, _) = bc_args
         except Exception:
             log.error("Template not ready yet")
             return result
@@ -52,9 +51,8 @@ class MiningSubscription(Subscription):
         # Force client to remove previous jobs if any (eg. from previous connection)
         clean_jobs = True
         self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, True)
-        log.info(json.dumps({"rsk" : "[STRLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "uuid" : util.id_generator(),
-                             "data" : json.dumps({"job_id" : job_id, "prevhash" : prevhash, "coinb1" : coinb1, "coinb2" : coinb2,
-                                                  "merkle_branch" : merkle_branch, "version" : version, "nbits" : nbits, "ntime" : ntime})}))
+        
+        log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
         return result
 
     def after_subscribe(self, *args):
