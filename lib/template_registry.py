@@ -1,6 +1,7 @@
 import weakref
 import json
 import binascii
+import jsonpickle
 import util
 import StringIO
 from stratum import settings
@@ -106,7 +107,7 @@ class TemplateRegistry(object):
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
         call = False
-        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag') and settings.RSK_NOTIFY_POLICY is not None:
+        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag') and settings.RSK_NOTIFY_POLICY is not 0:
             if settings.RSK_NOTIFY_POLICY == 1:
                 if self.rootstock_rpc.rsk_notify:
                     call = True
@@ -136,17 +137,20 @@ class TemplateRegistry(object):
         '''
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
+        self.rootstock_rpc.rsk_notify = data['notify']
         self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
         self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
-        self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
-        self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
+        self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
+        self.rootstock_rpc.rsk_notify = data['notify']
         self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
+        if self.rootstock_rpc.rsk_notify:
+            self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+            self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         if settings.RSK_DEV_MODE:
             self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
         else:
             self.rootstock_rpc.rsk_target = int(data['target'], 16)
-        self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
-        self.rootstock_rpc.rsk_notify = data['notify']
+
 
     def update_block(self):
         '''Registry calls the getblocktemplate() RPC
@@ -174,6 +178,7 @@ class TemplateRegistry(object):
         self.last_data = data
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
+        data['rsk_header'] = self.rootstock_rpc.rsk_header
         template.fill_from_rpc(data)
         self.add_template(template)
 
@@ -202,9 +207,13 @@ class TemplateRegistry(object):
     def _rsk_getwork(self, result, id):
 
         self._rsk_fill_data(result)
-
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
         self.last_data['rsk_flag'] = True
+        if settings.RSK_DEV_MODE:
+            self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
+        else:
+            self.rootstock_rpc.rsk_target = int(result['target'], 16)
+
         self.last_data['rsk_target'] = self.rootstock_rpc.rsk_target
         self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
         self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
@@ -335,7 +344,7 @@ class TemplateRegistry(object):
         # 5. Compare hash with target of the network
         log.info("Hash_Int: %s, Job.Target %s" % (hash_int, job.target))
         btcSolution = hash_int <= job.target
-        rskSolution = hasattr(job, 'rsk_flag') and hash_int <= job.rsk_target
+        rskSolution = hash_int <= self.rootstock_rpc.rsk_target
 
         if btcSolution or rskSolution:
             log.info("We found a block candidate! %s" % block_hash_hex)

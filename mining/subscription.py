@@ -52,7 +52,7 @@ class MiningSubscription(Subscription):
 
         # Force client to remove previous jobs if any (eg. from previous connection)
         clean_jobs = True
-        self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, True)
+        self.emit_single(job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs)
 
         log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[WORK_SENT_OLD]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start, "data" : bc_args}))
 

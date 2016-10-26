@@ -53,12 +53,8 @@ class BlockTemplate(halfnode.CBlock):
         txhashes = [None] + [util.ser_uint256(int(t['hash'], 16)) for t in data['transactions']]
         mt = merkletree.MerkleTree(txhashes)
 
-        if 'rsk_flag' in data and 'rsk_header' in data and data['rsk_header'] != None:
-            coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
-                            data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS, data)
-        else:
-            coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
-                            data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS)
+        coinbase = self.coinbase_transaction_class(self.timestamper, self.coinbaser, data['coinbasevalue'],
+                        data['coinbaseaux']['flags'], data['height'], settings.COINBASE_EXTRAS, data['rsk_header'])
 
         self.height = data['height']
         self.nVersion = data['version']
@@ -81,17 +77,12 @@ class BlockTemplate(halfnode.CBlock):
             self.target = int(settings.BTC_DEV_TARGET)
         else:
             self.target = util.uint256_from_compact(self.nBits)
-        if 'rsk_flag' in data:
-            if settings.RSK_DEV_MODE:
-                self.rsk_target = int(settings.RSK_DEV_TARGET)
-            else:
-                self.rsk_target = int(data['rsk_target'])
 
         # Reversed prevhash
         self.prevhash_bin = binascii.unhexlify(util.reverse_hash(data['previousblockhash']))
         self.prevhash_hex = "%064x" % self.hashPrevBlock
 
-        self.broadcast_args = self.build_broadcast_args()
+        self.broadcast_args = self.build_broadcast_args('rsk_flag' in data)
 
     def register_submit(self, extranonce1, extranonce2, ntime, nonce):
         '''Client submitted some solution. Let's register it to
@@ -103,7 +94,7 @@ class BlockTemplate(halfnode.CBlock):
             return True
         return False
 
-    def build_broadcast_args(self):
+    def build_broadcast_args(self, rsk_job=False):
         '''Build parameters of mining.notify call. All clients
         may receive the same params, because they include
         their unique extranonce1 into the coinbase, so every
@@ -118,10 +109,7 @@ class BlockTemplate(halfnode.CBlock):
         nbits = binascii.hexlify(struct.pack(">I", self.nBits))
         ntime = binascii.hexlify(struct.pack(">I", self.curtime))
         clean_jobs = True
-        if self.rsk_target == 0:
-            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, False)
-        else:
-            return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, True)
+        return (job_id, prevhash, coinb1, coinb2, merkle_branch, version, nbits, ntime, clean_jobs, rsk_job)
 
     def serialize_coinbase(self, extranonce1, extranonce2):
         '''Serialize coinbase with given extranonce1 and extranonce2
