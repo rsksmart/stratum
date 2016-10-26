@@ -1,0 +1,453 @@
+2016-10-26 14:32:41,981 DEBUG tcp # Logging initialized
+2016-10-26 14:32:42,043 DEBUG example # Logging initialized
+2016-10-26 14:32:42,045 DEBUG interfaces # Logging initialized
+2016-10-26 14:32:42,045 DEBUG subscription # Logging initialized
+2016-10-26 14:32:42,046 DEBUG mining # Logging initialized
+2016-10-26 14:32:42,067 DEBUG block_updater # Logging initialized
+2016-10-26 14:32:42,068 DEBUG rsk_block_updater # Logging initialized
+2016-10-26 14:32:42,068 DEBUG template_registry # Logging initialized
+2016-10-26 14:32:42,096 DEBUG bitcoin_rpc # Logging initialized
+2016-10-26 14:32:42,112 DEBUG rootstock_rpc # Logging initialized
+2016-10-26 14:32:42,117 DEBUG block_template # Logging initialized
+2016-10-26 14:32:42,119 DEBUG coinbaser # Logging initialized
+2016-10-26 14:32:42,119 DEBUG mining # Logging initialized
+2016-10-26 14:32:42,120 INFO mining # '''
+
+2016-10-26 14:32:42,120 INFO mining # This is example configuration for Stratum server.
+
+2016-10-26 14:32:42,121 INFO mining # Please rename it to settings.py and fill correct values.
+
+2016-10-26 14:32:42,121 INFO mining # '''
+
+2016-10-26 14:32:42,121 INFO mining # 
+
+2016-10-26 14:32:42,121 INFO mining # # ******************** GENERAL SETTINGS ***************
+
+2016-10-26 14:32:42,122 INFO mining # 
+
+2016-10-26 14:32:42,122 INFO mining # # Enable some verbose debug (logging requests and responses).
+
+2016-10-26 14:32:42,122 INFO mining # DEBUG = False
+
+2016-10-26 14:32:42,122 INFO mining # 
+
+2016-10-26 14:32:42,122 INFO mining # # Destination for application logs, files rotated once per day.
+
+2016-10-26 14:32:42,122 INFO mining # LOGDIR = 'log/'
+
+2016-10-26 14:32:42,122 INFO mining # 
+
+2016-10-26 14:32:42,122 INFO mining # # Main application log file.
+
+2016-10-26 14:32:42,122 INFO mining # LOGFILE = 'stratum.log'
+
+2016-10-26 14:32:42,122 INFO mining # 
+
+2016-10-26 14:32:42,122 INFO mining # # Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+2016-10-26 14:32:42,122 INFO mining # LOGLEVEL = 'DEBUG'
+
+2016-10-26 14:32:42,123 INFO mining # 
+
+2016-10-26 14:32:42,123 INFO mining # # How many threads use for synchronous methods (services).
+
+2016-10-26 14:32:42,123 INFO mining # # 30 is enough for small installation, for real usage
+
+2016-10-26 14:32:42,123 INFO mining # # it should be slightly more, say 100-300.
+
+2016-10-26 14:32:42,123 INFO mining # THREAD_POOL_SIZE = 200
+
+2016-10-26 14:32:42,123 INFO mining # 
+
+2016-10-26 14:32:42,123 INFO mining # ENABLE_EXAMPLE_SERVICE = True
+
+2016-10-26 14:32:42,123 INFO mining # 
+
+2016-10-26 14:32:42,123 INFO mining # # ******************** TRANSPORTS *********************
+
+2016-10-26 14:32:42,123 INFO mining # 
+
+2016-10-26 14:32:42,123 INFO mining # # Hostname or external IP to expose
+
+2016-10-26 14:32:42,123 INFO mining # HOSTNAME = 'localhost'
+
+2016-10-26 14:32:42,123 INFO mining # 
+
+2016-10-26 14:32:42,123 INFO mining # # Port used for Socket transport. Use 'None' for disabling the transport.
+
+2016-10-26 14:32:42,123 INFO mining # LISTEN_SOCKET_TRANSPORT = 3333
+
+2016-10-26 14:32:42,124 INFO mining # 
+
+2016-10-26 14:32:42,124 INFO mining # # Port used for HTTP Poll transport. Use 'None' for disabling the transport
+
+2016-10-26 14:32:42,124 INFO mining # LISTEN_HTTP_TRANSPORT = None
+
+2016-10-26 14:32:42,124 INFO mining # 
+
+2016-10-26 14:32:42,124 INFO mining # # Port used for HTTPS Poll transport
+
+2016-10-26 14:32:42,124 INFO mining # LISTEN_HTTPS_TRANSPORT = None
+
+2016-10-26 14:32:42,124 INFO mining # 
+
+2016-10-26 14:32:42,124 INFO mining # # Port used for WebSocket transport, 'None' for disabling WS
+
+2016-10-26 14:32:42,124 INFO mining # LISTEN_WS_TRANSPORT = None
+
+2016-10-26 14:32:42,124 INFO mining # 
+
+2016-10-26 14:32:42,124 INFO mining # # Port used for secure WebSocket, 'None' for disabling WSS
+
+2016-10-26 14:32:42,124 INFO mining # LISTEN_WSS_TRANSPORT = None
+
+2016-10-26 14:32:42,124 INFO mining # 
+
+2016-10-26 14:32:42,124 INFO mining # # Hostname and credentials for one trusted Bitcoin node ("Satoshi's client").
+
+2016-10-26 14:32:42,124 INFO mining # # Stratum uses both P2P port (which is 8333 already) and RPC port
+
+2016-10-26 14:32:42,124 INFO mining # BITCOIN_TRUSTED_HOST = 'localhost'
+
+2016-10-26 14:32:42,125 INFO mining # BITCOIN_TRUSTED_PORT = 32591
+
+2016-10-26 14:32:42,125 INFO mining # BITCOIN_TRUSTED_USER = 'admin'
+
+2016-10-26 14:32:42,125 INFO mining # BITCOIN_TRUSTED_PASSWORD = 'admin'
+
+2016-10-26 14:32:42,125 INFO mining # 
+
+2016-10-26 14:32:42,125 INFO mining # RSK_DEV_MODE = True
+
+2016-10-26 14:32:42,125 INFO mining # RSK_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+2016-10-26 14:32:42,125 INFO mining # BTC_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+2016-10-26 14:32:42,125 INFO mining # RSK_POLL_PERIOD = 3
+
+2016-10-26 14:32:42,125 INFO mining # RSK_NOTIFY_POLICY = 1
+
+2016-10-26 14:32:42,125 INFO mining # RSK_TRUSTED_HOST = '127.0.0.1'
+
+2016-10-26 14:32:42,125 INFO mining # RSK_TRUSTED_PORT = 4444
+
+2016-10-26 14:32:42,125 INFO mining # RSK_TRUSTED_USER = 'admin'
+
+2016-10-26 14:32:42,125 INFO mining # RSK_TRUSTED_PASSWORD = 'admin'
+
+2016-10-26 14:32:42,126 INFO mining # RSK_STRATUM_TARGET = 0.01
+
+2016-10-26 14:32:42,126 INFO mining # 
+
+2016-10-26 14:32:42,126 INFO mining # 
+
+2016-10-26 14:32:42,126 INFO mining # # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
+
+2016-10-26 14:32:42,126 INFO mining # # for calculating SHA256 of your preferred password
+
+2016-10-26 14:32:42,126 INFO mining # ADMIN_PASSWORD_SHA256 = '84559e0732fad578fd9ddabb60a611880fe5579dbc600a7312ca0405a332da9b'
+
+2016-10-26 14:32:42,126 INFO mining # #ADMIN_PASSWORD_SHA256 = '9e6c0c1db1e0dfb3fa5159deb4ecd9715b3c8cd6b06bd4a3ad77e9a8c5694219' # SHA256 of the password
+
+2016-10-26 14:32:42,126 INFO mining # 
+
+2016-10-26 14:32:42,126 INFO mining # IRC_NICK = None
+
+2016-10-26 14:32:42,127 INFO mining # 
+
+2016-10-26 14:32:42,127 INFO mining # '''
+
+2016-10-26 14:32:42,127 INFO mining # DATABASE_DRIVER = 'MySQLdb'
+
+2016-10-26 14:32:42,127 INFO mining # DATABASE_HOST = 'localhost'
+
+2016-10-26 14:32:42,127 INFO mining # DATABASE_DBNAME = 'pooldb'
+
+2016-10-26 14:32:42,127 INFO mining # DATABASE_USER = 'pooldb'
+
+2016-10-26 14:32:42,127 INFO mining # DATABASE_PASSWORD = '**empty**'
+
+2016-10-26 14:32:42,127 INFO mining # '''
+
+2016-10-26 14:32:42,127 INFO mining # 
+
+2016-10-26 14:32:42,128 INFO mining # # Pool related settings
+
+2016-10-26 14:32:42,128 INFO mining # INSTANCE_ID = 31
+
+2016-10-26 14:32:42,128 INFO mining # CENTRAL_WALLET = 'moRRJjJw7sWwt3Y5HNAEzCPMHM9qpS49cN'
+
+2016-10-26 14:32:42,128 INFO mining # PREVHASH_REFRESH_INTERVAL = 10 # in sec
+
+2016-10-26 14:32:42,128 INFO mining # MERKLE_REFRESH_INTERVAL = 60 # How often check memorypool
+
+2016-10-26 14:32:42,128 INFO mining # COINBASE_EXTRAS = '/rsk_stratum/'
+
+2016-10-26 14:32:42,128 DEBUG rootstock_rpc # Got to Rootstock RPC
+2016-10-26 14:32:42,129 DEBUG bitcoin_rpc # Got to Bitcoin RPC
+2016-10-26 14:32:42,204 DEBUG stats # Logging initialized
+2016-10-26 14:32:42,213 DEBUG protocol # Logging initialized
+2016-10-26 14:32:42,214 DEBUG socket_transport # Logging initialized
+2016-10-26 14:32:42,216 DEBUG http_transport # Logging initialized
+2016-10-26 14:32:42,276 DEBUG irc # Logging initialized
+2016-10-26 14:32:45,001 DEBUG rsk_block_updater # 
+2016-10-26 14:32:45,216 INFO template_registry # ##########################
+2016-10-26 14:32:45,216 INFO template_registry # self.rootstock_rpc.rsk_notify = True
+2016-10-26 14:32:45,217 INFO template_registry # 2
+2016-10-26 14:32:45,217 INFO template_registry # 0000003b4c5731964f6a84cdbb6a0fce8064ed7f23ba16bdb8d76763bdd76ae3
+2016-10-26 14:32:45,217 INFO template_registry # ##########################
+2016-10-26 14:32:47,207 INFO stats # 1 peers connected, state changed 1 times
+2016-10-26 14:32:47,207 DEBUG protocol # Connected 127.0.0.1
+2016-10-26 14:32:47,208 INFO tcp # {'start': 1477503167.208189, 'tag': '[MINNOT]', 'data': u'2', 'rsk': '[RSKLOG]'}
+2016-10-26 14:32:48,002 DEBUG rsk_block_updater # 
+2016-10-26 14:32:51,002 DEBUG rsk_block_updater # 
+2016-10-26 14:32:52,155 INFO tcp # {'start': 1477503172.155763, 'tag': '[MINNOT]', 'data': u'5', 'rsk': '[RSKLOG]'}
+2016-10-26 14:32:52,705 INFO interfaces # 000000137017a984cae9f9f77ef9a48f68399c7ef20745ad64b26416e897d584 valid user
+2016-10-26 14:32:52,734 INFO interfaces # Block 000000137017a984cae9f9f77ef9a48f68399c7ef20745ad64b26416e897d584 ACCEPTED
+2016-10-26 14:32:54,002 DEBUG rsk_block_updater # 
+2016-10-26 14:32:54,007 INFO template_registry # ##########################
+2016-10-26 14:32:54,007 INFO template_registry # self.rootstock_rpc.rsk_notify = True
+2016-10-26 14:32:54,007 INFO template_registry # 6
+2016-10-26 14:32:54,008 INFO template_registry # 0000003b4c5731964f6a84cdbb6a0fce8064ed7f23ba16bdb8d76763bdd76ae3
+2016-10-26 14:32:54,008 INFO template_registry # ##########################
+2016-10-26 14:32:54,008 INFO tcp # {'start': 1477503174.008241, 'tag': '[MINNOT]', 'data': u'6', 'rsk': '[RSKLOG]'}
+2016-10-26 14:32:55,181 INFO interfaces # 0000003ad7b478248da6a6e8fd3ec35bc4b5994afb3e9e261613496ab47991dc valid user
+2016-10-26 14:32:55,207 INFO interfaces # Block 0000003ad7b478248da6a6e8fd3ec35bc4b5994afb3e9e261613496ab47991dc REJECTED
+2016-10-26 14:32:55,295 INFO interfaces # 0000000ecd83a90830d311af1f3ef749d16aa36a3667bdb116940d19f9766250 valid user
+2016-10-26 14:32:55,313 INFO interfaces # Block 0000000ecd83a90830d311af1f3ef749d16aa36a3667bdb116940d19f9766250 REJECTED
+2016-10-26 14:32:55,498 INFO interfaces # 0000002c746914d865a1ecab9885fb14b734cc9a4ec15cd3295643a42e9abc4f valid user
+2016-10-26 14:32:55,514 INFO interfaces # Block 0000002c746914d865a1ecab9885fb14b734cc9a4ec15cd3295643a42e9abc4f REJECTED
+2016-10-26 14:32:57,003 DEBUG rsk_block_updater # 
+2016-10-26 14:32:57,006 INFO template_registry # ##########################
+2016-10-26 14:32:57,006 INFO template_registry # self.rootstock_rpc.rsk_notify = True
+2016-10-26 14:32:57,006 INFO template_registry # 7
+2016-10-26 14:32:57,006 INFO template_registry # 0000003b4c5731964f6a84cdbb6a0fce8064ed7f23ba16bdb8d76763bdd76ae3
+2016-10-26 14:32:57,007 INFO template_registry # ##########################
+2016-10-26 14:32:57,007 INFO tcp # {'start': 1477503177.00762, 'tag': '[MINNOT]', 'data': u'7', 'rsk': '[RSKLOG]'}
+2016-10-26 14:32:57,840 INFO interfaces # 0000003499afbded873143f9b545710f80318cc408ae75582072df5082638fdf valid user
+2016-10-26 14:32:57,850 INFO interfaces # Block 0000003499afbded873143f9b545710f80318cc408ae75582072df5082638fdf REJECTED
+2016-10-26 14:33:00,003 DEBUG rsk_block_updater # 
+2016-10-26 14:33:00,038 INFO interfaces # 0000000f5906880594ec0818a108c7a75fa1cbf462c0e46ec9b616415ac2b269 valid user
+2016-10-26 14:33:00,059 INFO interfaces # Block 0000000f5906880594ec0818a108c7a75fa1cbf462c0e46ec9b616415ac2b269 REJECTED
+2016-10-26 14:33:02,160 INFO tcp # {'start': 1477503182.160044, 'tag': '[MINNOT]', 'data': u'9', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:03,004 DEBUG rsk_block_updater # 
+2016-10-26 14:33:03,007 INFO template_registry # ##########################
+2016-10-26 14:33:03,007 INFO template_registry # self.rootstock_rpc.rsk_notify = True
+2016-10-26 14:33:03,008 INFO template_registry # a
+2016-10-26 14:33:03,008 INFO template_registry # 000000137017a984cae9f9f77ef9a48f68399c7ef20745ad64b26416e897d584
+2016-10-26 14:33:03,008 INFO template_registry # ##########################
+2016-10-26 14:33:03,008 INFO tcp # {'start': 1477503183.008278, 'tag': '[MINNOT]', 'data': u'a', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:04,232 INFO interfaces # 00000020eeef742869808ac007190bb69a908f3591a5d95f9bf3d2857945031d valid user
+2016-10-26 14:33:04,250 INFO interfaces # Block 00000020eeef742869808ac007190bb69a908f3591a5d95f9bf3d2857945031d ACCEPTED
+2016-10-26 14:33:06,004 DEBUG rsk_block_updater # 
+2016-10-26 14:33:06,168 INFO interfaces # 0000002946291faaca2b07293b25bbaeb37ac7ce3a2bffddfb0d4bd59e918838 valid user
+2016-10-26 14:33:06,178 INFO interfaces # Block 0000002946291faaca2b07293b25bbaeb37ac7ce3a2bffddfb0d4bd59e918838 REJECTED
+2016-10-26 14:33:06,717 INFO interfaces # 00000058d5e14f073b1b15a8e586ac9caa8d890511d533f9be5ccb5eb3adfa65 valid user
+2016-10-26 14:33:06,729 INFO interfaces # Block 00000058d5e14f073b1b15a8e586ac9caa8d890511d533f9be5ccb5eb3adfa65 REJECTED
+2016-10-26 14:33:07,185 INFO interfaces # 00000028d93d76ed2a89d96dce89d8232f59a2d71176b9314847d454b5b4f55b valid user
+2016-10-26 14:33:07,196 INFO interfaces # Block 00000028d93d76ed2a89d96dce89d8232f59a2d71176b9314847d454b5b4f55b REJECTED
+2016-10-26 14:33:09,005 DEBUG rsk_block_updater # 
+2016-10-26 14:33:09,007 INFO template_registry # ##########################
+2016-10-26 14:33:09,008 INFO template_registry # self.rootstock_rpc.rsk_notify = True
+2016-10-26 14:33:09,008 INFO template_registry # c
+2016-10-26 14:33:09,008 INFO template_registry # 000000137017a984cae9f9f77ef9a48f68399c7ef20745ad64b26416e897d584
+2016-10-26 14:33:09,008 INFO template_registry # ##########################
+2016-10-26 14:33:09,008 INFO tcp # {'start': 1477503189.008604, 'tag': '[MINNOT]', 'data': u'c', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:09,433 INFO interfaces # 000000141c55f40478803592d0df46984a131e758f7f8dbfd4041d687fde7deb valid user
+2016-10-26 14:33:09,444 INFO interfaces # Block 000000141c55f40478803592d0df46984a131e758f7f8dbfd4041d687fde7deb REJECTED
+2016-10-26 14:33:10,667 INFO interfaces # 0000002f7ce3e704427f1a7314cd3d21b781de9e72d1e53c7923cb0a52a6c241 valid user
+2016-10-26 14:33:10,679 INFO interfaces # Block 0000002f7ce3e704427f1a7314cd3d21b781de9e72d1e53c7923cb0a52a6c241 REJECTED
+2016-10-26 14:33:12,005 DEBUG rsk_block_updater # 
+2016-10-26 14:33:12,162 INFO tcp # {'start': 1477503192.162259, 'tag': '[MINNOT]', 'data': u'e', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:15,006 DEBUG rsk_block_updater # 
+2016-10-26 14:33:15,581 INFO interfaces # 000000518df82c5fa6c531c9274e977a98d9b0a6480a5ae744abc73688e1a028 valid user
+2016-10-26 14:33:15,600 INFO interfaces # Block 000000518df82c5fa6c531c9274e977a98d9b0a6480a5ae744abc73688e1a028 ACCEPTED
+2016-10-26 14:33:17,269 INFO interfaces # 00000049bef940b1f5b4e4ef9961c572d18c5fcd24be510f8b55ef6eab9213b1 valid user
+2016-10-26 14:33:17,279 INFO interfaces # Block 00000049bef940b1f5b4e4ef9961c572d18c5fcd24be510f8b55ef6eab9213b1 REJECTED
+2016-10-26 14:33:18,006 DEBUG rsk_block_updater # 
+2016-10-26 14:33:21,006 DEBUG rsk_block_updater # 
+2016-10-26 14:33:22,165 INFO tcp # {'start': 1477503202.164968, 'tag': '[MINNOT]', 'data': u'12', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:24,007 DEBUG rsk_block_updater # 
+2016-10-26 14:33:27,007 DEBUG rsk_block_updater # 
+2016-10-26 14:33:28,631 INFO interfaces # 000000440ccb73920de9cfe7742ddcefdd401fe570ff29d603c8307b5243b703 valid user
+2016-10-26 14:33:28,653 INFO interfaces # Block 000000440ccb73920de9cfe7742ddcefdd401fe570ff29d603c8307b5243b703 ACCEPTED
+2016-10-26 14:33:29,934 INFO interfaces # 00000060f38d99a538a8e7b3b8c5766abfe59dadd9d164aa1b8c86c0f5ee0f9c valid user
+2016-10-26 14:33:29,945 INFO interfaces # Block 00000060f38d99a538a8e7b3b8c5766abfe59dadd9d164aa1b8c86c0f5ee0f9c REJECTED
+2016-10-26 14:33:30,008 DEBUG rsk_block_updater # 
+2016-10-26 14:33:31,941 INFO interfaces # 00000003ba550fde52d07d96394180b870a8447a9e456e00d995b75674e684a0 valid user
+2016-10-26 14:33:31,952 INFO interfaces # Block 00000003ba550fde52d07d96394180b870a8447a9e456e00d995b75674e684a0 REJECTED
+2016-10-26 14:33:32,168 INFO tcp # {'start': 1477503212.16841, 'tag': '[MINNOT]', 'data': u'16', 'rsk': '[RSKLOG]'}
+2016-10-26 14:33:33,008 DEBUG rsk_block_updater # 
+2016-10-26 14:33:33,737 INFO interfaces # 00000055f12f9ce57aed7e40339552072016efae29196cf8261b0cfb35f2bbbb valid user
+2016-10-26 14:33:33,751 INFO interfaces # Block 00000055f12f9ce57aed7e40339552072016efae29196cf8261b0cfb35f2bbbb ACCEPTED
+2016-10-26 14:33:35,005 INFO stats # 0 peers connected, state changed 1 times
+2016-10-26 14:33:36,008 DEBUG rsk_block_updater # 
+2016-10-26 14:33:39,008 DEBUG rsk_block_updater # 
+2016-10-26 14:33:39,008 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:39,009 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:39,010 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:39,010 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:39,010 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:39,010 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:39,011 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:39,011 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:42,008 DEBUG rsk_block_updater # 
+2016-10-26 14:33:42,011 DEBUG rsk_block_updater # 
+2016-10-26 14:33:42,011 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:42,012 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:42,012 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:42,013 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:42,013 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:42,014 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+2016-10-26 14:33:42,014 ERROR rootstock_rpc # RSK getwork failed: Connection was refused by other side: 111: Connection refused.
+Traceback (most recent call last):
+  File "/home/nboskovic/Work/RSK/test/rstratum-mining/lib/rootstock_rpc.py", line 98, in getwork
+    resp = (yield self._call('mnr_getWork', []))
+ConnectionRefusedError: Connection was refused by other side: 111: Connection refused.
+2016-10-26 14:33:42,014 ERROR template_registry # _RSK_GETWORK_ERR: [Failure instance: Traceback (failure with no frames): <class 'twisted.internet.error.ConnectionRefusedError'>: Connection was refused by other side: 111: Connection refused.
+]
+
+[2016-10-26 14:32:47] > {"id": 1, "method": "mining.subscribe", "params": ["cpuminer/2.4.5"]}                                                                                                                                                  
+[2016-10-26 14:32:47] < {"error": null, "id": 1, "result": [["mining.notify", "ae6812eb4cd7735a302a8a9dd95cf71f"], "f8000001", 4]}                                                                                                             
+[2016-10-26 14:32:47] > {"id": 2, "method": "mining.authorize", "params": ["user", "pass"]}                                                                                                                                                    
+[2016-10-26 14:32:47] < {"params": [0.01], "id": null, "method": "mining.set_difficulty"}                                                                                                                                                      
+[2016-10-26 14:32:47] < {"params": ["2", "bdd76ae3b8d7676323ba16bd8064ed7fbb6a0fce4f6a84cd4c5731960000003b", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02430304bde8105808", "0d2f72736b5f73747261747
+56d2f0000000002902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000000000002952534b424c4f434b3a3ac3cb6523bc9f566ad671b7e5a1a22584ce013bdda97be3083656dd857a3cb400000000", [], "20000000", "207fffff", "5810e8ba", false
+], "id": null, "method": "mining.notify"}                                                                                                                                                                                                      
+[2016-10-26 14:32:47] < {"error": null, "id": 2, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:48] thread 0: 2097152 hashes, 11991 khash/s                                                                                                                                                                                  
+[2016-10-26 14:32:48] thread 1: 2097152 hashes, 11847 khash/s                                                                                                                                                                                  
+[2016-10-26 14:32:52] < {"params": ["5", "bdd76ae3b8d7676323ba16bd8064ed7fbb6a0fce4f6a84cd4c5731960000003b", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02430304c4e8105808", "0d2f72736b5f73747261747
+56d2f0000000001902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000", [], "20000000", "207fffff", "5810e8c4", false], "id": null, "method": "mining.notify"}                                                           
+[2016-10-26 14:32:52] thread 1: 50209048 hashes, 11624 khash/s                                                                                                                                                                                 
+[2016-10-26 14:32:52] > {"method": "mining.submit", "params": ["user", "2", "00000000", "5810e8ba", "13211e83"], "id":4}                                                                                                                       
+[2016-10-26 14:32:52] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:52] accepted: 1/1 (100.00%), 23615 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:32:54] < {"params": ["6", "bdd76ae3b8d7676323ba16bd8064ed7fbb6a0fce4f6a84cd4c5731960000003b", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02430304c6e8105808", "0d2f72736b5f73747261747
+56d2f0000000002902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000000000002952534b424c4f434b3a748cacd3904c264d53847f180a3504831698ceaa993e2700a5eedb97df0f55ea00000000", [], "20000000", "207fffff", "5810e8c4", false
+], "id": null, "method": "mining.notify"}                                                                                                                                                                                                      
+[2016-10-26 14:32:55] thread 0: 79830392 hashes, 11743 khash/s                                                                                                                                                                                 
+[2016-10-26 14:32:55] > {"method": "mining.submit", "params": ["user", "2", "00000000", "5810e8ba", "771de204"], "id":4}                                                                                                                       
+[2016-10-26 14:32:55] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:55] accepted: 2/2 (100.00%), 23367 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:32:55] thread 1: 30052392 hashes, 11603 khash/s                                                                                                                                                                                 
+[2016-10-26 14:32:55] > {"method": "mining.submit", "params": ["user", "5", "00000000", "5810e8c4", "2190ca81"], "id":4}                                                                                                                       
+[2016-10-26 14:32:55] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:55] accepted: 3/3 (100.00%), 23346 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:32:55] thread 0: 3486224 hashes, 11010 khash/s                                                                                                                                                                                  
+[2016-10-26 14:32:55] > {"method": "mining.submit", "params": ["user", "6", "00000000", "5810e8c4", "08323500"], "id":4}                                                                                                                       
+[2016-10-26 14:32:55] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:55] accepted: 4/4 (100.00%), 22613 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:32:57] < {"params": ["7", "bdd76ae3b8d7676323ba16bd8064ed7fbb6a0fce4f6a84cd4c5731960000003b", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02430304c9e8105808", "0d2f72736b5f73747261747
+56d2f0000000002902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000000000002952534b424c4f434b3aa2dc60826dcd7edb739f9a02d26c865080854f996002eab17649b432371de85700000000", [], "20000000", "207fffff", "5810e8c4", false
+], "id": null, "method": "mining.notify"}                                                                                                                                                                                                      
+[2016-10-26 14:32:57] thread 1: 29065656 hashes, 11423 khash/s                                                                                                                                                                                 
+[2016-10-26 14:32:57] > {"method": "mining.submit", "params": ["user", "6", "00000000", "5810e8c4", "af81bb81"], "id":4}                                                                                                                       
+[2016-10-26 14:32:57] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:32:57] accepted: 5/5 (100.00%), 22432 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:33:00] thread 1: 26137344 hashes, 11888 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:00] > {"method": "mining.submit", "params": ["user", "7", "00000000", "5810e8c4", "fdd28e81"], "id":4}                                                                                                                       
+[2016-10-26 14:33:00] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:00] accepted: 6/6 (100.00%), 22898 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:33:02] < {"params": ["9", "e897d58464b26416f20745ad68399c7e7ef9a48fcae9f9f77017a98400000013", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02440304cee8105808", "0d2f72736b5f73747261747
+56d2f0000000001902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000", [], "20000000", "207fffff", "5810e8ce", false], "id": null, "method": "mining.notify"}                                                           
+[2016-10-26 14:33:02] thread 0: 79048808 hashes, 11638 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:03] < {"params": ["a", "e897d58464b26416f20745ad68399c7e7ef9a48fcae9f9f77017a98400000013", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02440304cfe8105808", "0d2f72736b5f73747261747
+56d2f0000000002902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000000000002952534b424c4f434b3a2fdcd92a95cc1efe54bec7c254d299a370c1759f37708fcee8514bb856aa6e4d00000000", [], "20000000", "207fffff", "5810e8ce", false
+], "id": null, "method": "mining.notify"}                                                                                                                                                                                                      
+[2016-10-26 14:33:04] thread 0: 22538208 hashes, 11608 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:04] > {"method": "mining.submit", "params": ["user", "9", "00000000", "5810e8ce", "d9e75701"], "id":4}                                                                                                                       
+[2016-10-26 14:33:04] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:04] accepted: 7/7 (100.00%), 23497 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:33:04] thread 1: 50538464 hashes, 11679 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:06] thread 1: 21202880 hashes, 11764 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:06] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "b7874381"], "id":4}                                                                                                                       
+[2016-10-26 14:33:06] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:06] accepted: 8/8 (100.00%), 23373 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:33:06] thread 0: 28869064 hashes, 11621 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:06] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "c581b801"], "id":4}                                                                                                                       
+[2016-10-26 14:33:06] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:06] accepted: 9/9 (100.00%), 23385 khash/s (yay!!!)                                                                                                                                                                          
+[2016-10-26 14:33:07] thread 0: 5585544 hashes, 11928 khash/s                                                                                                                                                                                  
+[2016-10-26 14:33:07] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "4abc0d02"], "id":4}                                                                                                                       
+[2016-10-26 14:33:07] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "4abc0d02"], "id":4}                                                                                                                       
+[2016-10-26 14:33:07] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:07] accepted: 10/10 (100.00%), 23693 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:09] < {"params": ["c", "e897d58464b26416f20745ad68399c7e7ef9a48fcae9f9f77017a98400000013", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02440304d5e8105808", "0d2f72736b5f73747261747
+56d2f0000000002902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000000000002952534b424c4f434b3a5f5707ea828100b59aa985dd0b41a99c569553513014af9b88a1919ed85fffbb00000000", [], "20000000", "207fffff", "5810e8ce", false
+], "id": null, "method": "mining.notify"}                                                                                                                                                                                                      
+[2016-10-26 14:33:09] thread 0: 26796560 hashes, 11919 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:09] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "5a9ea603"], "id":4}                                                                                                                       
+[2016-10-26 14:33:09] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:09] accepted: 11/11 (100.00%), 23683 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:10] thread 1: 52268128 hashes, 11618 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:10] > {"method": "mining.submit", "params": ["user", "a", "00000000", "5810e8ce", "10146184"], "id":4}                                                                                                                       
+[2016-10-26 14:33:10] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:10] accepted: 12/12 (100.00%), 23538 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:12] < {"params": ["e", "7945031d9bf3d28591a5d95f9a908f3507190bb669808ac0eeef742800000020", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02450304d8e8105808", "0d2f72736b5f73747261747
+56d2f0000000001902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000", [], "20000000", "207fffff", "5810e8d8", false], "id": null, "method": "mining.notify"}                                                           
+[2016-10-26 14:33:14] thread 0: 61026744 hashes, 11562 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:15] thread 0: 10299936 hashes, 11861 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:15] > {"method": "mining.submit", "params": ["user", "e", "00000000", "5810e8d8", "192a9d00"], "id":4}                                                                                                                       
+[2016-10-26 14:33:15] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:15] accepted: 13/13 (100.00%), 23480 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:17] thread 0: 19237328 hashes, 11392 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:17] > {"method": "mining.submit", "params": ["user", "e", "00000000", "5810e8d8", "e3b3c201"], "id":4}                                                                                                                       
+[2016-10-26 14:33:17] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:17] accepted: 14/14 (100.00%), 23010 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:20] thread 1: 111502472 hashes, 11732 khash/s                                                                                                                                                                                
+[2016-10-26 14:33:22] < {"params": ["12", "88e1a02844abc736480a5ae798d9b0a6274e977aa6c531c98df82c5f00000051", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02460304e2e8105808", "0d2f72736b5f7374726174
+756d2f0000000001902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000", [], "20000000", "207fffff", "5810e8e2", false], "id": null, "method": "mining.notify"}                                                          
+[2016-10-26 14:33:22] thread 1: 29201304 hashes, 11528 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:28] thread 1: 69773856 hashes, 11772 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:28] > {"method": "mining.submit", "params": ["user", "12", "00000000", "5810e8e2", "1aaa2884"], "id":4}                                                                                                                      
+[2016-10-26 14:33:28] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:28] accepted: 15/15 (100.00%), 23163 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:28] thread 0: 137308832 hashes, 11703 khash/s                                                                                                                                                                                
+[2016-10-26 14:33:29] thread 1: 15312816 hashes, 11754 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:29] > {"method": "mining.submit", "params": ["user", "12", "00000000", "5810e8e2", "c6511285"], "id":4}                                                                                                                      
+[2016-10-26 14:33:29] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:29] accepted: 16/16 (100.00%), 23457 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:31] thread 0: 35007936 hashes, 11906 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:31] > {"method": "mining.submit", "params": ["user", "12", "00000000", "5810e8e2", "bc2d1602"], "id":4}                                                                                                                      
+[2016-10-26 14:33:31] < {"error": null, "id": 4, "result": true}                                                                                                                                                                               
+[2016-10-26 14:33:31] accepted: 17/17 (100.00%), 23660 khash/s (yay!!!)                                                                                                                                                                        
+[2016-10-26 14:33:32] < {"params": ["16", "5243b70303c8307b70ff29d6dd401fe5742ddcef0de9cfe70ccb739200000044", "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f02470304ece8105808", "0d2f72736b5f7374726174
+756d2f0000000001902f5009000000001976a91456b50f06ccce4ac45951db51ee54600de3d7435088ac00000000", [], "20000000", "207fffff", "5810e8ec", false], "id": null, "method": "mining.notify"}                                                          
+[2016-10-26 14:33:33] thread 1: 36759240 hashes, 11352 khash/s                                                                                                                                                                                 
+[2016-10-26 14:33:33] thread 1: 6654784 hashes, 11793 khash/s                                                                                                                                                                                  
