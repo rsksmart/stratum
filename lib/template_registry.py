@@ -141,11 +141,9 @@ class TemplateRegistry(object):
         self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
         self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
         self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
-        self.rootstock_rpc.rsk_notify = data['notify']
         self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
-        if self.rootstock_rpc.rsk_notify:
-            self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
-            self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
+        self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+        self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         if settings.RSK_DEV_MODE:
             self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
         else:
