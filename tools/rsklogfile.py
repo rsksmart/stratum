@@ -239,7 +239,8 @@ class RSKParser:
                     self.curr_notify_id = res['data']
                     self.notify_events.append(res)
                     brt_match = [ x for x in self.btc_block_received_templ if x['data'][0] == self.curr_notify_id]
-                    self.process_btc_blockreceived_event(brt_match)
+                    if len(brt_match) > 0:
+                        self.process_btc_blockreceived_event(brt_match)
                 else:
                     self.notify_events.append(res)
             else:
