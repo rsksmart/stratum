@@ -1,0 +1,14 @@
+Commands to parse log
+---------------------
+
+-- number of GBT
+grep "BTC_BLOCK_RECEIVED_TEMPLATE" stratum.log | wc -l
+
+-- number of RSK block submissions
+grep "RSK_SUBMITBLOCK" stratum.log | wc -l
+
+-- number of BTC block submissions
+grep "ACCEPTED" stratum.log | wc -l
+
+-- number of shares
+grep "SHARE_RECEIVED_START" stratum.log | wc -l
