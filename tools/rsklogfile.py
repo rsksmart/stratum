@@ -178,11 +178,11 @@ class RSKParser:
         self.sws['S4'] = "max"
         self.sws['S5'] = "median"
         self.sws['S6'] = "min"
-        self.sws['T2'] = '=AVERAGE($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T3'] = '=STDEV($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T4'] = '=MAX($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T5'] = '=MEDIAN($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T6'] = '=MIN($Q$2:$J$' + str(self.sws_rowcount) + ')'
+        self.sws['T2'] = '=AVERAGE($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T3'] = '=STDEV($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T4'] = '=MAX($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T5'] = '=MEDIAN($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T6'] = '=MIN($Q$2:$Q$' + str(self.sws_rowcount) + ')'
 
         self.sws.column_dimensions.group('I','J', hidden=True)
         self.sws.column_dimensions.group('Q', hidden=True)
