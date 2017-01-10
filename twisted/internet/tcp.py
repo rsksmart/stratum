@@ -242,6 +242,17 @@ class Connection(_TLSConnectionMixin, abstract.FileDescriptor, _SocketCloser,
         limitedData = lazyByteSlice(data, 0, self.SEND_LIMIT)
 
         try:
+
+            if data.find("mining.notify") > 0 and data.find("params") > 0:
+                lines = data.split('\n')
+                lineWithParams = ""
+                for line in reversed(lines):
+                    if line.find("params") > 0:
+                        lineWithParams = line
+                        break
+
+                if json.loads(lineWithParams)['params'] != "":
+                    loggr.info({"rsk": "[RSKLOG]", "tag": "[MINNOT]", "start": time.time(), "data": json.loads(lineWithParams)['params'][0]})
             return untilConcludes(self.socket.send, data)
         except socket.error as se:
             if se.args[0] in (EWOULDBLOCK, ENOBUFS):
