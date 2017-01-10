@@ -178,11 +178,11 @@ class RSKParser:
         self.sws['S4'] = "max"
         self.sws['S5'] = "median"
         self.sws['S6'] = "min"
-        self.sws['T2'] = '=AVERAGE($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T3'] = '=STDEV($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T4'] = '=MAX($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T5'] = '=MEDIAN($Q$2:$J$' + str(self.sws_rowcount) + ')'
-        self.sws['T6'] = '=MIN($Q$2:$J$' + str(self.sws_rowcount) + ')'
+        self.sws['T2'] = '=AVERAGE($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T3'] = '=STDEV($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T4'] = '=MAX($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T5'] = '=MEDIAN($Q$2:$Q$' + str(self.sws_rowcount) + ')'
+        self.sws['T6'] = '=MIN($Q$2:$Q$' + str(self.sws_rowcount) + ')'
 
         self.sws.column_dimensions.group('I','J', hidden=True)
         self.sws.column_dimensions.group('Q', hidden=True)
@@ -239,7 +239,8 @@ class RSKParser:
                     self.curr_notify_id = res['data']
                     self.notify_events.append(res)
                     brt_match = [ x for x in self.btc_block_received_templ if x['data'][0] == self.curr_notify_id]
-                    self.process_btc_blockreceived_event(brt_match)
+                    if len(brt_match) > 0:
+                        self.process_btc_blockreceived_event(brt_match)
                 else:
                     self.notify_events.append(res)
             else:
