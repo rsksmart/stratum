@@ -46,7 +46,7 @@ class MiningSubscription(Subscription):
             return result
 
         # Force set higher difficulty
-        if hasattr(settings, 'RSK_STRATUM_TARGET'):
+        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_TARGET'):
             self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_TARGET,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
