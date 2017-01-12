@@ -7,6 +7,7 @@ import StringIO
 from stratum import settings
 from twisted.internet import defer
 from lib.exceptions import SubmitException
+from time import time
 
 import stratum.logger
 log = stratum.logger.get_logger('template_registry')
@@ -26,10 +27,16 @@ class JobIdGenerator(object):
             cls.counter = 1
         return "%x" % cls.counter
 
+rskLastReceivedShareTime = None
+rskSubmittedShares = None
+
 class TemplateRegistry(object):
+
+
     '''Implements the main logic of the pool. Keep track
     on valid block templates, provide internal interface for stratum
     service and implements block validation and submits.'''
+
 
     def __init__(self, block_template_class, coinbaser, bitcoin_rpc, instance_id,
                  on_template_callback, on_block_callback, rootstock_rpc=None):
@@ -54,6 +61,7 @@ class TemplateRegistry(object):
         self.rsk_last_update = 0
         self.rsk_update_in_progress = False
         self.last_data = dict()
+        self.last_rsk_hash = ""
 
         # Create first block template on startup
         self.update_block()
@@ -203,6 +211,8 @@ class TemplateRegistry(object):
                 pass #RSK dropped recently so we're letting this pass
 
     def _rsk_getwork(self, result, id):
+        if self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
+            return self.last_data
 
         self._rsk_fill_data(result)
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
@@ -273,6 +283,8 @@ class TemplateRegistry(object):
             - difficulty - decimal number from session, again no checks performed
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
+        global rskLastReceivedShareTime
+        global rskSubmittedShares
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_START]", "uuid" : logid, "start" : start, "elapsed" : 0}))
@@ -348,11 +360,25 @@ class TemplateRegistry(object):
             log.info("We found a block candidate! %s" % block_hash_hex)
             job.finalize(merkle_root_int, extranonce1_bin, extranonce2_bin, int(ntime, 16), int(nonce, 16))
             on_submit = None
-            serialized = binascii.hexlify(job.serialize())
             if btcSolution:
+                serialized = binascii.hexlify(job.serialize())
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
             if rskSolution:
+                if rskLastReceivedShareTime is None:
+                    rskLastReceivedShareTime = int(round(time() * 1000))
+                    rskSubmittedShares = 0
+                lastReceivedShareTimeNow = int(round(time() * 1000))
+                if lastReceivedShareTimeNow - rskLastReceivedShareTime >= 1000:
+                    rskSubmittedShares = 0
+                    rskLastReceivedShareTime = lastReceivedShareTimeNow
+
+                if lastReceivedShareTimeNow - rskLastReceivedShareTime < 1000 and rskSubmittedShares < 3:
+                    rskSubmittedShares += 1
+                else:
+                    return (header_hex, block_hash_hex, None)
+                serialized = binascii.hexlify(job.serialize())
+		log.info("RSKDEBUGSUBMIT")
                 if not btcSolution:
                     on_submit = self.rootstock_rpc.submitblock(serialized)
                 else:
