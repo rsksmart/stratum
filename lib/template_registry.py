@@ -87,6 +87,20 @@ class TemplateRegistry(object):
         if hasattr(block, 'rsk_flag'):
             rsk_is_old_block = self.rootstock_rpc.rsk_parent_hash == self.rootstock_rpc.rsk_last_parent_hash
 
+        call = False
+        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag') and settings.RSK_NOTIFY_POLICY is not 0:
+            if settings.RSK_NOTIFY_POLICY == 1:
+                if self.rootstock_rpc.rsk_notify:
+                    call = True
+            if settings.RSK_NOTIFY_POLICY == 2:
+                if not rsk_is_old_block:
+                    call = True
+        else:
+            # Everything is ready, let's broadcast jobs!
+            call = True
+        if not call:
+            return
+
         if prevhash in self.prevhashes.keys():
             new_block = False
         else:
@@ -114,20 +128,9 @@ class TemplateRegistry(object):
             # Tell the system about new block
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
-        call = False
-        if hasattr(settings, 'RSK_NOTIFY_POLICY') and hasattr(block, 'rsk_flag') and settings.RSK_NOTIFY_POLICY is not 0:
-            if settings.RSK_NOTIFY_POLICY == 1:
-                if self.rootstock_rpc.rsk_notify:
-                    call = True
-            if settings.RSK_NOTIFY_POLICY == 2:
-                if not rsk_is_old_block:
-                    call = True
-        else:
-            # Everything is ready, let's broadcast jobs!
-            call = True
 
-        if call:
-            self.on_template_callback(new_block)
+
+        self.on_template_callback(new_block)
 
 
         #from twisted.internet import reactor
@@ -149,9 +152,9 @@ class TemplateRegistry(object):
         self.rootstock_rpc.rsk_blockhashformergedmining = data['blockHashForMergedMining']
         self.rootstock_rpc.rsk_last_header = self.rootstock_rpc.rsk_header
         self.rootstock_rpc.rsk_miner_fees = data['feesPaidToMiner']
+        self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         self.rootstock_rpc.rsk_parent_hash = data['parentBlockHash']
         self.rootstock_rpc.rsk_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
-        self.rootstock_rpc.rsk_last_parent_hash = self.rootstock_rpc.rsk_parent_hash
         if settings.RSK_DEV_MODE:
             self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
         else:
@@ -211,8 +214,6 @@ class TemplateRegistry(object):
                 pass #RSK dropped recently so we're letting this pass
 
     def _rsk_getwork(self, result, id):
-        if self.rootstock_rpc.rsk_blockhashformergedmining == result['blockHashForMergedMining']:
-            return self.last_data
 
         self._rsk_fill_data(result)
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)

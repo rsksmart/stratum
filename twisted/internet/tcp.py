@@ -243,7 +243,7 @@ class Connection(_TLSConnectionMixin, abstract.FileDescriptor, _SocketCloser,
 
         try:
 
-            if data.find("mining.notify") > 0 and data.find("params") > 0:
+            if hasattr(data, 'find') and data.find("mining.notify") > 0 and data.find("params") > 0:
                 lines = data.split('\n')
                 lineWithParams = ""
                 for line in reversed(lines):
