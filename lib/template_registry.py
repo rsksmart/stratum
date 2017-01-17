@@ -129,9 +129,7 @@ class TemplateRegistry(object):
             # It is mostly important for share manager
             self.on_block_callback(prevhash)
 
-
         self.on_template_callback(new_block)
-
 
         #from twisted.internet import reactor
         #reactor.callLater(10, self.on_block_callback, new_block)
@@ -199,10 +197,10 @@ class TemplateRegistry(object):
 
     def rsk_update_block(self):
         try:
-            if self.rsk_update_in_progress:
+            currentTime = Interfaces.timestamper.time()
+            if self.rsk_update_in_progress and not (currentTime - self.rsk_last_update > 3):
                 return
-
-            self.rsk_last_update = Interfaces.timestamper.time()
+            self.rsk_last_update = currentTime
             self.rsk_update_in_progress = True
             rsk_block_received_id = util.id_generator()
             log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_START]", "start" : Interfaces.timestamper.time(), "elapsed" : 0, "uuid" : rsk_block_received_id}))
@@ -215,27 +213,30 @@ class TemplateRegistry(object):
 
     def _rsk_getwork(self, result, id):
 
-        self._rsk_fill_data(result)
-        template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
-        self.last_data['rsk_flag'] = True
-        if settings.RSK_DEV_MODE:
-            self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
-        else:
-            self.rootstock_rpc.rsk_target = int(result['target'], 16)
+        try:
+            self._rsk_fill_data(result)
+            template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id(), True)
+            self.last_data['rsk_flag'] = True
+            if settings.RSK_DEV_MODE:
+                self.rootstock_rpc.rsk_target = int(settings.RSK_DEV_TARGET)
+            else:
+                self.rootstock_rpc.rsk_target = int(result['target'], 16)
 
-        self.last_data['rsk_target'] = self.rootstock_rpc.rsk_target
-        self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
-        self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
-        template.fill_from_rpc(self.last_data)
-        self.add_template(template)
-        start = Interfaces.timestamper.time()
-        log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']})) #job_id
-        self.rsk_update_in_progress = False
-        return self.last_data
+            self.last_data['rsk_target'] = self.rootstock_rpc.rsk_target
+            self.last_data['rsk_header'] = self.rootstock_rpc.rsk_header
+            self.last_data['rsk_notify'] = self.rootstock_rpc.rsk_notify
+            template.fill_from_rpc(self.last_data)
+            self.add_template(template)
+            start = Interfaces.timestamper.time()
+            log.info(json.dumps({"uuid" : id, "rsk" : "[RSKLOG]", "tag" : "[RSK_BLOCK_RECEIVED_TEMPLATE]", "start" : start, "elapsed" : 0, "data" : self.last_block.__dict__['broadcast_args']})) #job_id
+
+            return self.last_data
+        finally:
+            self.rsk_update_in_progress = False
 
     def _rsk_getwork_err(self, err):
-        log.error("_RSK_GETWORK_ERR: " + str(err))
         self.rsk_update_in_progress = False
+        log.error("_RSK_GETWORK_ERR: " + str(err))
         if "111: Connection refused" in str(err):
             log.info("RSKD Connection refused...")
             if self.rsk_timeout_counter < 3:
@@ -379,7 +380,6 @@ class TemplateRegistry(object):
                 else:
                     return (header_hex, block_hash_hex, None)
                 serialized = binascii.hexlify(job.serialize())
-		log.info("RSKDEBUGSUBMIT")
                 if not btcSolution:
                     on_submit = self.rootstock_rpc.submitblock(serialized)
                 else:
