@@ -46,8 +46,8 @@ class MiningSubscription(Subscription):
             return result
 
         # Force set higher difficulty
-        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_TARGET'):
-            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_TARGET,], is_notification=True)
+        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_DIFFICULTY'):
+            self.connection_ref().rpc('mining.set_difficulty', [settings.RSK_STRATUM_DIFFICULTY,], is_notification=True)
         #self.connection_ref().rpc('client.get_version', [])
 
         # Force client to remove previous jobs if any (eg. from previous connection)

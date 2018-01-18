@@ -58,8 +58,8 @@ class MiningService(GenericService):
 
         session = self.connection_ref().get_session()
         session['extranonce1'] = extranonce1
-        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_TARGET'):
-            session['difficulty'] = settings.RSK_STRATUM_TARGET
+        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_DIFFICULTY'):
+            session['difficulty'] = settings.RSK_STRATUM_DIFFICULTY
         else:
             session['difficulty'] = 1 # Following protocol specs, default diff is 1
 
@@ -98,8 +98,8 @@ class MiningService(GenericService):
         if not extranonce1_bin:
             raise SubmitException("Connection is not subscribed for mining")
 
-        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_TARGET'):
-            difficulty = settings.RSK_STRATUM_TARGET
+        if settings.RSK_DEV_MODE and hasattr(settings, 'RSK_STRATUM_DIFFICULTY'):
+            difficulty = settings.RSK_STRATUM_DIFFICULTY
         else:
             difficulty = session['difficulty']
         submit_time = Interfaces.timestamper.time()

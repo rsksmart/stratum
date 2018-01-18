@@ -60,7 +60,7 @@ RSK_TRUSTED_HOST = '127.0.0.1'
 RSK_TRUSTED_PORT = 4444
 RSK_TRUSTED_USER = 'admin'
 RSK_TRUSTED_PASSWORD = 'admin'
-RSK_STRATUM_TARGET = 0.01
+RSK_STRATUM_DIFFICULTY = 0.01
 
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
