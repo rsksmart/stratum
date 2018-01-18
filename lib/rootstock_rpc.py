@@ -28,7 +28,7 @@ class RootstockRPC(object):
         self.rskd_url = 'http://%s:%d' % (rsk_host, rsk_port)
         self.rskd_cred = base64.b64encode("%s:%s" % (rsk_username, rsk_password))
         self.headers = {
-            'Content-Type' : 'text/json',
+            'Content-Type' : 'application/json',
             'Authorization' : 'Basic %s' % self.rskd_cred,
         }
         self.rskds = True
