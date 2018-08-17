@@ -164,8 +164,15 @@ def reverse_hash(h):
     # This only revert byte order, nothing more
     if len(h) != 64:
         raise Exception('hash must have 64 hexa chars')
-
+        
     return ''.join([ h[56-i:64-i] for i in range(0, 64, 8) ])
+
+def reverse_hash_in_bytes(h):
+    # This only revert byte order, nothing more
+    if len(h) != 64:
+        raise Exception('hash must have 64 hexa chars')
+        
+    return ''.join([ h[62-i:64-i] for i in range(0, 64, 2) ])
 
 def doublesha(b):
     return sha256(sha256(b).digest()).digest()

@@ -139,6 +139,16 @@ class BlockTemplate(halfnode.CBlock):
         r += nonce_bin
         return r
 
+    def serialize_header2(self, merkle_root_int, ntime_bin, nonce_bin):
+        '''Serialize header for calculating block hash'''
+        r  = struct.pack("<i", self.nVersion)
+        r += binascii.unhexlify(util.reverse_hash_in_bytes(self.prevhash_hex))
+        r += binascii.unhexlify(util.reverse_hash_in_bytes(util.reverse_hash(binascii.hexlify(util.ser_uint256_be(merkle_root_int)))))
+        r += ntime_bin
+        r += struct.pack("<I", self.nBits)
+        r += nonce_bin
+        return r
+
     def finalize(self, merkle_root_int, extranonce1_bin, extranonce2_bin, ntime, nonce):
         '''Take all parameters required to compile block candidate.
         self.is_valid() should return True then...'''

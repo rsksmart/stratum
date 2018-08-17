@@ -77,12 +77,12 @@ class RootstockRPC(object):
         self.rsk_debug = ''
 
     @defer.inlineCallbacks
-    def submitblock(self, block_hex):
+    def submitBitcoinBlockPartialMerkle(self, blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit, txnCountRskSubmit):
         '''
-        Rootstock RPC mnr_submitBitcoinBlock handler
+        Rootstock RPC mnr_submitBitcoinBlockPartialMerkle handler
         '''
         if self.active:
-            resp = (yield self._call('mnr_submitBitcoinBlock', [block_hex,]))
+            resp = (yield self._call('mnr_submitBitcoinBlockPartialMerkle', [blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit, txnCountRskSubmit,]))
             if json.loads(resp)['result'] is None:
                 defer.returnValue(True)
             else:

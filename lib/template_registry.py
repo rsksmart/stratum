@@ -333,10 +333,14 @@ class TemplateRegistry(object):
         merkle_root_int = util.uint256_from_str(merkle_root_bin)
 
         # 3. Serialize header with given merkle, ntime and nonce
-        header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
+        # header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
+        header_bin = job.serialize_header2(merkle_root_int, ntime_bin, nonce_bin)
 
         # 4. Reverse header and compare it with target of the user
+        
+        # header 80-bytes (19*4 + 4)
         hash_bin = util.doublesha(''.join([header_bin[i*4:i*4+4][::-1] for i in range(0, 20)]))
+    
         hash_int = util.uint256_from_str(hash_bin)
         block_hash_hex = "%064x" % hash_int
         header_hex = binascii.hexlify(header_bin)
@@ -380,10 +384,36 @@ class TemplateRegistry(object):
                 else:
                     return (header_hex, block_hash_hex, None)
                 serialized = binascii.hexlify(job.serialize())
+
+                blockhashHexRskSubmitNoRevert = block_hash_hex
+                blockhashHexRskSubmit = block_hash_hex[::-1]
+                blockheaderHexRskSubmit = header_hex
+                coinbaseHexRskSubmit = binascii.hexlify(coinbase_bin)
+                coinbaseHashHexRskSubmit = binascii.hexlify(coinbase_hash)
+                merkleHashesRskSubmit = [binascii.hexlify(x) for x in job.merkletree._steps]
+                merkleHashesRskSubmit.insert(0, util.reverse_hash_in_bytes(coinbaseHashHexRskSubmit))
+                merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmit)
+                txnCountRskSubmit = '1'
+
+                print('serialized')
+                print(serialized)
+                print('blockhashHexRskSubmit')
+                print(blockhashHexRskSubmit)
+                print('blockheaderHexRskSubmit')
+                print(blockheaderHexRskSubmit)
+                print('coinbaseHexRskSubmit')
+                print(coinbaseHexRskSubmit)
+                print('coinbaseHashHexRskSubmit')
+                print(coinbaseHashHexRskSubmit)
+                print('merkleHashesRskSubmit')
+                print(merkleHashesRskSubmit)
+                print('txnCountRskSubmit')
+                print(txnCountRskSubmit)
+
                 if not btcSolution:
-                    on_submit = self.rootstock_rpc.submitblock(serialized)
+                    on_submit = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit )
                 else:
-                    self.rootstock_rpc.submitblock(serialized)
+                    self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit )
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
 
             return (header_hex, block_hash_hex, on_submit)
