@@ -82,11 +82,12 @@ class RootstockRPC(object):
         Rootstock RPC mnr_submitBitcoinBlockPartialMerkle handler
         '''
         if self.active:
-            resp = (yield self._call('mnr_submitBitcoinBlockPartialMerkle', [blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit, txnCountRskSubmit,]))
-            if json.loads(resp)['result'] is None:
-                defer.returnValue(True)
-            else:
-                defer.returnValue(False)
+            try:
+                resp = (yield self._call('mnr_submitBitcoinBlockPartialMerkle', [blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit, txnCountRskSubmit,]))
+                defer.returnValue('result' in json.loads(resp))
+            except Exception as e:
+                log.exception("RSK submit Bitcoin Block Partial Merkle failed: %s", e)
+                raise
 
     @defer.inlineCallbacks
     def getwork(self):

@@ -370,6 +370,8 @@ class TemplateRegistry(object):
                 serialized = binascii.hexlify(job.serialize())
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
+
+            on_submit_rsk = None    
             if rskSolution:
                 if rskLastReceivedShareTime is None:
                     rskLastReceivedShareTime = int(round(time() * 1000))
@@ -385,7 +387,8 @@ class TemplateRegistry(object):
                     return (header_hex, block_hash_hex, None)
                 serialized = binascii.hexlify(job.serialize())
 
-                blockhashHexRskSubmit = block_hash_hex[::-1]
+                # Block hash is just for loggin in rsk
+                blockhashHexRskSubmit = block_hash_hex
                 blockheaderHexRskSubmit = binascii.hexlify(job.serialize_header_le(merkle_root_int, ntime_bin, nonce_bin))
                 coinbaseHexRskSubmit = binascii.hexlify(coinbase_bin)
                 coinbaseHashHexRskSubmit = binascii.hexlify(coinbase_hash)
@@ -394,12 +397,10 @@ class TemplateRegistry(object):
                 merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmitArray)
                 txnCountRskSubmit = len(merkleHashesRskSubmitArray)
 
-                if not btcSolution:
-                    on_submit = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit )
-                else:
-                    self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit )
+                on_submit_rsk = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit)
+
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
 
-            return (header_hex, block_hash_hex, on_submit)
+            return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
 
         return (header_hex, block_hash_hex, None)
