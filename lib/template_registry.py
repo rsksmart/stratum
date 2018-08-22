@@ -362,16 +362,18 @@ class TemplateRegistry(object):
         btcSolution = hash_int <= job.target
         rskSolution = hash_int <= self.rootstock_rpc.rsk_target
 
+        on_submit_rsk = None
+        on_submit = None
+
         if btcSolution or rskSolution:
             log.info("We found a block candidate! %s" % block_hash_hex)
             job.finalize(merkle_root_int, extranonce1_bin, extranonce2_bin, int(ntime, 16), int(nonce, 16))
-            on_submit = None
+            
             if btcSolution:
                 serialized = binascii.hexlify(job.serialize())
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
-
-            on_submit_rsk = None    
+            
             if rskSolution:
                 if rskLastReceivedShareTime is None:
                     rskLastReceivedShareTime = int(round(time() * 1000))
@@ -384,7 +386,8 @@ class TemplateRegistry(object):
                 if lastReceivedShareTimeNow - rskLastReceivedShareTime < 1000 and rskSubmittedShares < 3:
                     rskSubmittedShares += 1
                 else:
-                    return (header_hex, block_hash_hex, None)
+                    return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
+
                 serialized = binascii.hexlify(job.serialize())
 
                 # Block hash is just for loggin in rsk
@@ -403,4 +406,4 @@ class TemplateRegistry(object):
 
             return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
 
-        return (header_hex, block_hash_hex, None)
+        return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
