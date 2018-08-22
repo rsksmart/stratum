@@ -403,7 +403,5 @@ class TemplateRegistry(object):
                 on_submit_rsk = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit)
 
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
-
-            return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
-
+           
         return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
