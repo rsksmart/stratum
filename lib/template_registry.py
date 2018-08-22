@@ -334,7 +334,7 @@ class TemplateRegistry(object):
 
         # 3. Serialize header with given merkle, ntime and nonce
         # header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
-        header_bin = job.serialize_header2(merkle_root_int, ntime_bin, nonce_bin)
+        header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
 
         # 4. Reverse header and compare it with target of the user
         
@@ -385,30 +385,14 @@ class TemplateRegistry(object):
                     return (header_hex, block_hash_hex, None)
                 serialized = binascii.hexlify(job.serialize())
 
-                blockhashHexRskSubmitNoRevert = block_hash_hex
                 blockhashHexRskSubmit = block_hash_hex[::-1]
-                blockheaderHexRskSubmit = header_hex
+                blockheaderHexRskSubmit = binascii.hexlify(job.serialize_header_le(merkle_root_int, ntime_bin, nonce_bin))
                 coinbaseHexRskSubmit = binascii.hexlify(coinbase_bin)
                 coinbaseHashHexRskSubmit = binascii.hexlify(coinbase_hash)
-                merkleHashesRskSubmit = [binascii.hexlify(x) for x in job.merkletree._steps]
-                merkleHashesRskSubmit.insert(0, util.reverse_hash_in_bytes(coinbaseHashHexRskSubmit))
-                merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmit)
-                txnCountRskSubmit = '1'
-
-                print('serialized')
-                print(serialized)
-                print('blockhashHexRskSubmit')
-                print(blockhashHexRskSubmit)
-                print('blockheaderHexRskSubmit')
-                print(blockheaderHexRskSubmit)
-                print('coinbaseHexRskSubmit')
-                print(coinbaseHexRskSubmit)
-                print('coinbaseHashHexRskSubmit')
-                print(coinbaseHashHexRskSubmit)
-                print('merkleHashesRskSubmit')
-                print(merkleHashesRskSubmit)
-                print('txnCountRskSubmit')
-                print(txnCountRskSubmit)
+                merkleHashesRskSubmitArray = [binascii.hexlify(x) for x in job.merkletree._steps]
+                merkleHashesRskSubmitArray.insert(0, binascii.hexlify(util.ser_uint256_le(int(coinbaseHashHexRskSubmit, 16 ))))
+                merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmitArray)
+                txnCountRskSubmit = len(merkleHashesRskSubmitArray)
 
                 if not btcSolution:
                     on_submit = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit )
