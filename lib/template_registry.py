@@ -140,6 +140,12 @@ class TemplateRegistry(object):
         '''
         return "RSKBLOCK:" + binascii.unhexlify(bhfmm[2:])
 
+    def _is_rsk_tag_in_coinbase(self, coinbase):
+
+        rsktagHeader = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+
+        return binascii.hexlify(rsktagHeader) in binascii.hexlify(coinbase)
+
     def _rsk_fill_data(self, data):
         '''
         Helper function for filling out the Bitcoin RPCs RSK data
@@ -360,7 +366,7 @@ class TemplateRegistry(object):
         # 5. Compare hash with target of the network
         log.info("Hash_Int: %s, Job.Target %s" % (hash_int, job.target))
         btcSolution = hash_int <= job.target
-        rskSolution = hash_int <= self.rootstock_rpc.rsk_target
+        rskSolution = hash_int <= self.rootstock_rpc.rsk_target and self._is_rsk_tag_in_coinbase(coinbase_bin)
 
         on_submit_rsk = None
         on_submit = None
