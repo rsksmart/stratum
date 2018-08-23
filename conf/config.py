@@ -80,7 +80,7 @@ DATABASE_PASSWORD = '**empty**'
 
 # Pool related settings
 INSTANCE_ID = 31
-# Change this setting for valid address from BTC
+# Change this setting for a valid address from BTC
 CENTRAL_WALLET = 'mgjPZrmmpAVuetUBbokcaEm9uZqVAUFvAu'
 PREVHASH_REFRESH_INTERVAL = 30 # in sec
 MERKLE_REFRESH_INTERVAL = 60 # How often check memorypool
