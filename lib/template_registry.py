@@ -50,8 +50,7 @@ class TemplateRegistry(object):
         self.coinbaser = coinbaser
         self.block_template_class = block_template_class
         self.bitcoin_rpc = bitcoin_rpc
-        if rootstock_rpc != None:
-            self.rootstock_rpc = rootstock_rpc
+        self.rootstock_rpc = rootstock_rpc
         self.on_block_callback = on_block_callback
         self.on_template_callback = on_template_callback
 
@@ -191,7 +190,9 @@ class TemplateRegistry(object):
         self.last_data = data
 
         template = self.block_template_class(Interfaces.timestamper, self.coinbaser, JobIdGenerator.get_new_id())
-        data['rsk_header'] = self.rootstock_rpc.rsk_header
+        
+        data['rsk_header'] = None if self.rootstock_rpc is None else self.rootstock_rpc.rsk_header
+        
         template.fill_from_rpc(data)
         self.add_template(template)
 
@@ -366,7 +367,10 @@ class TemplateRegistry(object):
         # 5. Compare hash with target of the network
         log.info("Hash_Int: %s, Job.Target %s" % (hash_int, job.target))
         btcSolution = hash_int <= job.target
-        rskSolution = hash_int <= self.rootstock_rpc.rsk_target and self._is_rsk_tag_in_coinbase(coinbase_bin)
+        rskSolution = False
+
+        if self.rootstock_rpc is not None:
+            rskSolution = hash_int <= self.rootstock_rpc.rsk_target and self._is_rsk_tag_in_coinbase(coinbase_bin)
 
         on_submit_rsk = None
         on_submit = None
