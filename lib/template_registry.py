@@ -404,7 +404,7 @@ class TemplateRegistry(object):
                 merkleHashesRskSubmitArray = [binascii.hexlify(x) for x in job.merkletree._steps]
                 merkleHashesRskSubmitArray.insert(0, binascii.hexlify(util.ser_uint256_le(int(coinbaseHashHexRskSubmit, 16 ))))
                 merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmitArray)
-                txnCountRskSubmit = len(merkleHashesRskSubmitArray)
+                txnCountRskSubmit = hex(len(merkleHashesRskSubmitArray))[2:]
 
                 on_submit_rsk = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit)
 
