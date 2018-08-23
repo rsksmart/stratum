@@ -6,7 +6,7 @@ Please rename it to settings.py and fill correct values.
 # ******************** GENERAL SETTINGS ***************
 
 # Enable some verbose debug (logging requests and responses).
-DEBUG = True
+DEBUG = False
 
 # Destination for application logs, files rotated once per day.
 LOGDIR = 'log/'
@@ -46,15 +46,15 @@ LISTEN_WSS_TRANSPORT = None
 
 # Hostname and credentials for one trusted Bitcoin node ("Satoshi's client").
 # Stratum uses both P2P port (which is 8333 already) and RPC port
-BITCOIN_TRUSTED_HOST = '127.0.0.1'
+BITCOIN_TRUSTED_HOST = 'localhost'
 BITCOIN_TRUSTED_PORT = 32592
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
 
-RSK_DEV_MODE = True
-RSK_DEV_TARGET = 0x0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-BTC_DEV_TARGET = 0x0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-RSK_POLL_PERIOD = 10
+RSK_DEV_MODE = False
+RSK_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+BTC_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+RSK_POLL_PERIOD = 0.5
 RSK_NOTIFY_POLICY = 1
 RSK_TRUSTED_HOST = 'localhost'
 RSK_TRUSTED_PORT = 4444
@@ -80,7 +80,8 @@ DATABASE_PASSWORD = '**empty**'
 
 # Pool related settings
 INSTANCE_ID = 31
-CENTRAL_WALLET = 'mo36yZF1R4ahmfNJufiEKAjnLkfLAJWThV'
+# Change this setting for valid address from BTC
+CENTRAL_WALLET = 'mgjPZrmmpAVuetUBbokcaEm9uZqVAUFvAu'
 PREVHASH_REFRESH_INTERVAL = 30 # in sec
 MERKLE_REFRESH_INTERVAL = 60 # How often check memorypool
 COINBASE_EXTRAS = '/rsk_stratum/'
