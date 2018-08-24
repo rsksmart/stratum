@@ -27,8 +27,8 @@ class JobIdGenerator(object):
             cls.counter = 1
         return "%x" % cls.counter
 
-rskLastReceivedShareTime = None
-rskSubmittedShares = None
+rsk_last_received_share_time = None
+rsk_submitted_shares = None
 
 class TemplateRegistry(object):
 
@@ -292,8 +292,8 @@ class TemplateRegistry(object):
             - difficulty - decimal number from session, again no checks performed
             - submitblock_callback - reference to method which receive result of submitblock()
         '''
-        global rskLastReceivedShareTime
-        global rskSubmittedShares
+        global rsk_last_received_share_time
+        global rsk_submitted_shares
         start = Interfaces.timestamper.time()
         logid = util.id_generator()
         log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[SHARE_RECEIVED_START]", "uuid" : logid, "start" : start, "elapsed" : 0}))
@@ -340,7 +340,6 @@ class TemplateRegistry(object):
         merkle_root_int = util.uint256_from_str(merkle_root_bin)
 
         # 3. Serialize header with given merkle, ntime and nonce
-        # header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
         header_bin = job.serialize_header(merkle_root_int, ntime_bin, nonce_bin)
 
         # 4. Reverse header and compare it with target of the user
@@ -366,51 +365,49 @@ class TemplateRegistry(object):
 
         # 5. Compare hash with target of the network
         log.info("Hash_Int: %s, Job.Target %s" % (hash_int, job.target))
-        btcSolution = hash_int <= job.target
-        rskSolution = False
+        btc_solution = hash_int <= job.target
+        rsk_solution = False
 
         if self.rootstock_rpc is not None:
-            rskSolution = hash_int <= self.rootstock_rpc.rsk_target and self._is_rsk_tag_in_coinbase(coinbase_bin)
+            rsk_solution = hash_int <= self.rootstock_rpc.rsk_target and self._is_rsk_tag_in_coinbase(coinbase_bin)
 
         on_submit_rsk = None
         on_submit = None
 
-        if btcSolution or rskSolution:
+        if btc_solution or rsk_solution:
             log.info("We found a block candidate! %s" % block_hash_hex)
             job.finalize(merkle_root_int, extranonce1_bin, extranonce2_bin, int(ntime, 16), int(nonce, 16))
             
-            if btcSolution:
+            if btc_solution:
                 serialized = binascii.hexlify(job.serialize())
                 on_submit = self.bitcoin_rpc.submitblock(serialized)
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[BTC_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
             
-            if rskSolution:
-                if rskLastReceivedShareTime is None:
-                    rskLastReceivedShareTime = int(round(time() * 1000))
-                    rskSubmittedShares = 0
-                lastReceivedShareTimeNow = int(round(time() * 1000))
-                if lastReceivedShareTimeNow - rskLastReceivedShareTime >= 1000:
-                    rskSubmittedShares = 0
-                    rskLastReceivedShareTime = lastReceivedShareTimeNow
+            if rsk_solution:
+                if rsk_last_received_share_time is None:
+                    rsk_last_received_share_time = int(round(time() * 1000))
+                    rsk_submitted_shares = 0
+                last_received_share_time_now = int(round(time() * 1000))
+                if last_received_share_time_now - rsk_last_received_share_time >= 1000:
+                    rsk_submitted_shares = 0
+                    rsk_last_received_share_time = last_received_share_time_now
 
-                if lastReceivedShareTimeNow - rskLastReceivedShareTime < 1000 and rskSubmittedShares < 3:
-                    rskSubmittedShares += 1
+                if last_received_share_time_now - rsk_last_received_share_time < 1000 and rsk_submitted_shares < 3:
+                    rsk_submitted_shares += 1
                 else:
                     return (header_hex, block_hash_hex, on_submit, on_submit_rsk)
 
                 serialized = binascii.hexlify(job.serialize())
 
-                # Block hash is just for loggin in rsk
-                blockhashHexRskSubmit = block_hash_hex
-                blockheaderHexRskSubmit = binascii.hexlify(job.serialize_header_le(merkle_root_int, ntime_bin, nonce_bin))
-                coinbaseHexRskSubmit = binascii.hexlify(coinbase_bin)
-                coinbaseHashHexRskSubmit = binascii.hexlify(coinbase_hash)
-                merkleHashesRskSubmitArray = [binascii.hexlify(x) for x in job.merkletree._steps]
-                merkleHashesRskSubmitArray.insert(0, binascii.hexlify(util.ser_uint256_le(int(coinbaseHashHexRskSubmit, 16 ))))
-                merkleHashesRskSubmit = ' '.join(merkleHashesRskSubmitArray)
-                txnCountRskSubmit = hex(len(merkleHashesRskSubmitArray))[2:]
+                block_header_hex = binascii.hexlify(job.serialize_header_le(merkle_root_int, ntime_bin, nonce_bin))
+                coinbase_hex = binascii.hexlify(coinbase_bin)
+                coinbase_hash_hex = binascii.hexlify(coinbase_hash)
+                merkle_hashes_array = [binascii.hexlify(x) for x in job.merkletree._steps]
+                merkle_hashes_array.insert(0, binascii.hexlify(util.ser_uint256_le(int(coinbase_hash_hex, 16 ))))
+                merkle_hashes = ' '.join(merkle_hashes_array)
+                txn_count = hex(len(merkle_hashes_array))[2:]
 
-                on_submit_rsk = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(blockhashHexRskSubmit, blockheaderHexRskSubmit, coinbaseHexRskSubmit, merkleHashesRskSubmit,txnCountRskSubmit)
+                on_submit_rsk = self.rootstock_rpc.submitBitcoinBlockPartialMerkle(block_hash_hex, block_header_hex, coinbase_hex, merkle_hashes, txn_count)
 
                 log.info(json.dumps({"rsk" : "[RSKLOG]", "tag" : "[RSK_SUBMITBLOCK]", "uuid" : util.id_generator(), "start" : start, "elapsed" : Interfaces.timestamper.time(), "data" : block_hash_hex}))
            
