@@ -403,7 +403,7 @@ class TemplateRegistry(object):
                 coinbase_hex = binascii.hexlify(coinbase_bin)
                 coinbase_hash_hex = binascii.hexlify(coinbase_hash)
                 merkle_hashes_array = [binascii.hexlify(x) for x in job.merkletree._steps]
-                merkle_hashes_array.insert(0, binascii.hexlify(util.ser_uint256_le(int(coinbase_hash_hex, 16 ))))
+                merkle_hashes_array.insert(0, coinbase_hash_hex)
                 merkle_hashes = ' '.join(merkle_hashes_array)
                 txn_count = hex(len(merkle_hashes_array))[2:]
 
