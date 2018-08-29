@@ -49,7 +49,7 @@ class BlockUpdater(object):
             else:
                 current_prevhash = None
 
-            prevhash = util.reverse_hash((yield self.bitcoin_rpc.prevhash()))
+            prevhash = yield self.bitcoin_rpc.prevhash()
             if prevhash and prevhash != current_prevhash:
                 start = Interfaces.timestamper.time()
                 logid = util.id_generator()

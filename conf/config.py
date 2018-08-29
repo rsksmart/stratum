@@ -62,7 +62,6 @@ RSK_TRUSTED_USER = 'user'
 RSK_TRUSTED_PASSWORD = 'pass'
 RSK_STRATUM_DIFFICULTY = 0.01
 
-
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
 # for calculating SHA256 of your preferred password
 ADMIN_PASSWORD_SHA256 = '84559e0732fad578fd9ddabb60a611880fe5579dbc600a7312ca0405a332da9b'
