@@ -216,10 +216,14 @@ class RSKParser:
             res = ast.literal_eval(line.split('#')[1].strip())
             event = res['tag']
         elif line.find("ACCEPTED") > 0:
+            if line.find("Submit to RSK") > 0:
+                return
             block = (line.split('#')[1].split(' ')[2], str(line.split('#')[0].split(' ')[0] + " " + line.split('#')[0].split(' ')[1]))
             self.process_submitblock_event(block)
             return
         elif line.find("REJECTED") > 0:
+            if line.find("Submit to RSK") > 0:
+                return
             block = line.split('#')[1].split(' ')[2]
             self.submitblock_end = [x for x in self.submitblock_end if x['data'][0] != block]
             self.btc_submitblock = [x for x in self.btc_submitblock if x['data'] != block]
