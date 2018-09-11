@@ -12,7 +12,7 @@ class CoinbaseTransaction(halfnode.CTransaction):
     extranonce_placeholder = struct.pack(extranonce_type, int('f000000ff111111f', 16))
     extranonce_size = struct.calcsize(extranonce_type)
 
-    def __init__(self, timestamper, coinbaser, value, flags, height, data, rsk_header):
+    def __init__(self, timestamper, coinbaser, value, flags, height, commitment, data, rsk_header):
         super(CoinbaseTransaction, self).__init__()
 
         #self.extranonce = 0
@@ -39,7 +39,14 @@ class CoinbaseTransaction(halfnode.CTransaction):
 
         self.vin.append(tx_in)
         self.vout.append(tx_out)
-        if rsk_header is not None:
+
+        if(commitment):
+            txout_commitment = halfnode.CTxOut()
+            txout_commitment.nValue = 0
+            txout_commitment.scriptPubKey = commitment
+            self.vout.append(txout_commitment)
+			
+		if rsk_header is not None:
             tx_out2 = halfnode.CTxOut()
             tx_out2.nvalue = 0
             tx_out2.scriptPubKey = rsk_header
