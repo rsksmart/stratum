@@ -35,8 +35,6 @@ class CoinbaseTransaction(halfnode.CTransaction):
         tx_out.nValue = value
         tx_out.scriptPubKey = coinbaser.get_script_pubkey()
 
-        #if hasattr(rsk, 'rsk_header'):
-
         self.vin.append(tx_in)
         self.vout.append(tx_out)
 
@@ -47,10 +45,10 @@ class CoinbaseTransaction(halfnode.CTransaction):
             self.vout.append(txout_commitment)
 
         if rsk_header is not None:
-            tx_out2 = halfnode.CTxOut()
-            tx_out2.nvalue = 0
-            tx_out2.scriptPubKey = rsk_header
-            self.vout.append(tx_out2)
+            tx_out_rsk = halfnode.CTxOut()
+            tx_out_rsk.nvalue = 0
+            tx_out_rsk.scriptPubKey = rsk_header
+            self.vout.append(tx_out_rsk)
 
         # Two parts of serialized coinbase, just put part1 + extranonce + part2 to have final serialized tx
         self._serialized = super(CoinbaseTransaction, self).serialize().split(self.extranonce_placeholder)
