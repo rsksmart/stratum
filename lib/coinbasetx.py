@@ -45,8 +45,8 @@ class CoinbaseTransaction(halfnode.CTransaction):
             txout_commitment.nValue = 0
             txout_commitment.scriptPubKey = commitment
             self.vout.append(txout_commitment)
-			
-		if rsk_header is not None:
+
+        if rsk_header is not None:
             tx_out2 = halfnode.CTxOut()
             tx_out2.nvalue = 0
             tx_out2.scriptPubKey = rsk_header

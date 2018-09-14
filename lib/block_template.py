@@ -47,7 +47,7 @@ class BlockTemplate(halfnode.CBlock):
         self.curtime = 0
         self.target = 0
         self.rsk_target = 0
-		self.witness = 0
+        self.witness = 0
         #self.coinbase_hex = None
         self.merkletree = None
         if rsk != None:
