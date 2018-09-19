@@ -129,7 +129,7 @@ class MiningService(GenericService):
                         worker_name, block_header, block_hash, submit_time)
             
         if on_submit_rsk != None:
-            # Pool performs submitblock() to bitcoind. Let's hook
+            # Pool performs submitBitcoinBlockPartialMerkle() to tskd. Let's hook
             # to result and report it to share manager
             on_submit_rsk.addCallback(Interfaces.share_manager.on_submit_block_rsk,
                         worker_name, block_header, block_hash, submit_time)
