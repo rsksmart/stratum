@@ -141,9 +141,9 @@ class TemplateRegistry(object):
 
     def _is_rsk_tag_in_coinbase(self, coinbase):
 
-        rsktagHeader = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
+        rsk_tag_header = self._rsk_genheader(self.rootstock_rpc.rsk_blockhashformergedmining)
 
-        return binascii.hexlify(rsktagHeader) in binascii.hexlify(coinbase)
+        return binascii.hexlify(rsk_tag_header) in binascii.hexlify(coinbase)
 
     def _rsk_fill_data(self, data):
         '''
