@@ -172,17 +172,6 @@ class BlockTemplate(halfnode.CBlock):
         
         return r
 
-    def serialize_header_le(self, merkle_root_int, ntime_bin, nonce_bin):
-        '''Serialize header in little endian for submit to RSK'''
-        r  = struct.pack("<i", self.nVersion)
-        r += util.ser_uint256_le(self.hashPrevBlock)
-        r += util.ser_uint256_le(merkle_root_int)
-        r += struct.pack("<I", int(binascii.hexlify(ntime_bin), 16))
-        r += struct.pack("<I", self.nBits)
-        r += struct.pack("<I", int(binascii.hexlify(nonce_bin), 16))
-
-        return r
-
     def finalize(self, merkle_root_int, extranonce1_bin, extranonce2_bin, ntime, nonce):
         '''Take all parameters required to compile block candidate.
         self.is_valid() should return True then...'''

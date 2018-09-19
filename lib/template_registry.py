@@ -345,7 +345,8 @@ class TemplateRegistry(object):
         # 4. Reverse header and compare it with target of the user
         
         # header 80-bytes (19*4 + 4)
-        hash_bin = util.doublesha(''.join([header_bin[i*4:i*4+4][::-1] for i in range(0, 20)]))
+        header_le = ''.join([header_bin[i*4:i*4+4][::-1] for i in range(0, 20)])
+        hash_bin = util.doublesha(header_le)
     
         hash_int = util.uint256_from_str(hash_bin)
         block_hash_hex = "%064x" % hash_int
@@ -399,7 +400,7 @@ class TemplateRegistry(object):
 
                 serialized = binascii.hexlify(job.serialize())
 
-                block_header_hex = binascii.hexlify(job.serialize_header_le(merkle_root_int, ntime_bin, nonce_bin))
+                block_header_hex = binascii.hexlify(header_le)
                 coinbase_hex = binascii.hexlify(coinbase_bin)
                 coinbase_hash_hex = binascii.hexlify(coinbase_hash)
                 merkle_hashes_array = [binascii.hexlify(x) for x in job.merkletree._steps]
