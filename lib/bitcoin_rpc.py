@@ -12,6 +12,8 @@ from lib import util
 import stratum.logger
 log = stratum.logger.get_logger('bitcoin_rpc')
 
+gbt_known_rules = ["segwit"]
+
 class BitcoinRPC(object):
 
     def __init__(self, host, port, username, password):
@@ -58,15 +60,14 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def getblocktemplate(self):
-        resp = (yield self._call('getblocktemplate', []))
+        resp = (yield self._call('getblocktemplate', [{"rules": gbt_known_rules}]))
         defer.returnValue(json.loads(resp)['result'])
 
     @defer.inlineCallbacks
     def prevhash(self):
-        resp = (yield self._call('getblocktemplate', []))
+        resp = (yield self._call('getbestblockhash', []))
         try:
-            print(json.loads(resp)['result']['previousblockhash'])
-            defer.returnValue(json.loads(resp)['result']['previousblockhash'])
+            defer.returnValue(json.loads(resp)['result'])
         except Exception as e:
             log.exception("Cannot decode prevhash %s" % str(e))
             raise

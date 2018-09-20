@@ -45,7 +45,22 @@ class ShareManagerInterface(object):
 
     def on_submit_block(self, is_accepted, worker_name, block_header, block_hash, timestamp):
         log.info("Block %s %s" % (block_hash, 'ACCEPTED' if is_accepted else 'REJECTED'))
+    
+    def on_submit_block_rsk(self, response, worker_name, block_header, block_hash, timestamp):
+        if 'error' in response:
+            info = {'blockHash': block_hash}
 
+            if 'message' in response['error']:
+                info['message'] = response['error']['message']
+
+            log.info("Submit to RSK, Block FAILED - %s" % info)
+            return 
+
+        if 'result' in response:
+            log.info("Submit to RSK, Block ACCEPTED - %s" % response['result'])
+            return
+
+   
 class TimestamperInterface(object):
     '''This is the only source for current time in the application.
     Override this for generating unix timestamp in different way.'''
