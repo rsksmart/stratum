@@ -12,7 +12,7 @@ class CoinbaseTransaction(halfnode.CTransaction):
     extranonce_placeholder = struct.pack(extranonce_type, int('f000000ff111111f', 16))
     extranonce_size = struct.calcsize(extranonce_type)
 
-    def __init__(self, timestamper, coinbaser, value, flags, height, data, rsk_header):
+    def __init__(self, timestamper, coinbaser, value, flags, height, commitment, data, rsk_header):
         super(CoinbaseTransaction, self).__init__()
 
         #self.extranonce = 0
@@ -35,16 +35,26 @@ class CoinbaseTransaction(halfnode.CTransaction):
         tx_out.nValue = value
         tx_out.scriptPubKey = coinbaser.get_script_pubkey()
 
-        #if hasattr(rsk, 'rsk_header'):
-
         self.vin.append(tx_in)
         self.vout.append(tx_out)
-        if rsk_header is not None:
-            tx_out2 = halfnode.CTxOut()
-            tx_out2.nvalue = 0
-            tx_out2.scriptPubKey = rsk_header
-            self.vout.append(tx_out2)
 
+        if(commitment):
+            txout_commitment = halfnode.CTxOut()
+            txout_commitment.nValue = 0
+            txout_commitment.scriptPubKey = commitment
+            self.vout.append(txout_commitment)
+
+        if rsk_header is not None:
+            tx_out_rsk = halfnode.CTxOut()
+            tx_out_rsk.nvalue = 0
+            tx_out_rsk.scriptPubKey = rsk_header
+            self.vout.append(tx_out_rsk)
+
+        if(commitment):
+            txout_commitment = halfnode.CTxOut()
+            txout_commitment.nValue = 0
+            txout_commitment.scriptPubKey = commitment
+            self.vout.append(txout_commitment)
         # Two parts of serialized coinbase, just put part1 + extranonce + part2 to have final serialized tx
         self._serialized = super(CoinbaseTransaction, self).serialize().split(self.extranonce_placeholder)
 
