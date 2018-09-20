@@ -1,6 +1,6 @@
 '''
 This is example configuration for Stratum server.
-Please rename it to settings.py and fill correct values.
+Please rename it to config.py and fill correct values.
 '''
 
 # ******************** GENERAL SETTINGS ***************
@@ -51,15 +51,18 @@ BITCOIN_TRUSTED_PORT = 32592
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
 
+# Hostname and credentials for one trusted RSK node.
+RSK_TRUSTED_HOST = 'localhost'
+RSK_TRUSTED_PORT = 4444
+RSK_TRUSTED_USER = 'admin'
+RSK_TRUSTED_PASSWORD = 'admin'
+RSK_POLL_PERIOD = 2
+RSK_NOTIFY_POLICY = 2
+
+# Use this settings ONLY for development
 RSK_DEV_MODE = False
 RSK_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 BTC_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-RSK_POLL_PERIOD = 0.5
-RSK_NOTIFY_POLICY = 1
-RSK_TRUSTED_HOST = 'localhost'
-RSK_TRUSTED_PORT = 4444
-RSK_TRUSTED_USER = 'user'
-RSK_TRUSTED_PASSWORD = 'pass'
 RSK_STRATUM_DIFFICULTY = 0.01
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
