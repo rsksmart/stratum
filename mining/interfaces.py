@@ -53,7 +53,7 @@ class ShareManagerInterface(object):
             if 'message' in response['error']:
                 info['message'] = response['error']['message']
 
-            log.info("Submit to RSK, Block FAIL - %s" % info)
+            log.info("Submit to RSK, Block FAILED - %s" % info)
             return 
 
         if 'result' in response:
