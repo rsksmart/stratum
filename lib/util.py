@@ -199,14 +199,6 @@ def ser_uint256_be(u):
         u >>= 32
     return rs
 
-def ser_uint256_le(u):
-    '''ser_uint256 to little endian'''
-    rs = ""
-    for i in xrange(8):
-        rs += struct.pack("<I", u & 0xFFFFFFFFL)
-        u >>= 32
-    return rs
-
 def deser_uint256_be(f):
     r = 0L
     for i in xrange(8):
