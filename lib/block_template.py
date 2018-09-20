@@ -170,6 +170,7 @@ class BlockTemplate(halfnode.CBlock):
         r += ntime_bin
         r += struct.pack(">I", self.nBits)
         r += nonce_bin
+        
         return r
 
     def finalize(self, merkle_root_int, extranonce1_bin, extranonce2_bin, ntime, nonce):

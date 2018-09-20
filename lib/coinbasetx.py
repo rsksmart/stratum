@@ -50,6 +50,11 @@ class CoinbaseTransaction(halfnode.CTransaction):
             tx_out_rsk.scriptPubKey = rsk_header
             self.vout.append(tx_out_rsk)
 
+        if(commitment):
+            txout_commitment = halfnode.CTxOut()
+            txout_commitment.nValue = 0
+            txout_commitment.scriptPubKey = commitment
+            self.vout.append(txout_commitment)
         # Two parts of serialized coinbase, just put part1 + extranonce + part2 to have final serialized tx
         self._serialized = super(CoinbaseTransaction, self).serialize().split(self.extranonce_placeholder)
 

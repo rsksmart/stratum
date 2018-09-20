@@ -109,7 +109,7 @@ class MiningService(GenericService):
         # This checks if submitted share meet all requirements
         # and it is valid proof of work.
         try:
-            (block_header, block_hash, on_submit) = Interfaces.template_registry.submit_share(job_id,
+            (block_header, block_hash, on_submit, on_submit_rsk) = Interfaces.template_registry.submit_share(job_id,
                                                 worker_name, extranonce1_bin, extranonce2, ntime, nonce, difficulty)
         except SubmitException as e:
             log.error("SUBMIT EXCEPTION: %s", e)
@@ -127,6 +127,15 @@ class MiningService(GenericService):
             # to result and report it to share manager
             on_submit.addCallback(Interfaces.share_manager.on_submit_block,
                         worker_name, block_header, block_hash, submit_time)
+            
+        if on_submit_rsk != None:
+            # Pool performs submitBitcoinBlockPartialMerkle() to rskd. Let's hook
+            # to result and report it to share manager
+            on_submit_rsk.addCallback(Interfaces.share_manager.on_submit_block_rsk,
+                        worker_name, block_header, block_hash, submit_time)
+            
+        if on_submit or on_submit_rsk:
+
             log.info(json.dumps({"uuid" : util.id_generator(), "rsk" : "[RSKLOG]", "tag" : "[SUBMITBLOCK_END]", "start" : submit_time, "elapsed" : Interfaces.timestamper.time() - submit_time,
                                  "data" : (block_hash, job_id)}))
 

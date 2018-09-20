@@ -47,7 +47,7 @@ LISTEN_WSS_TRANSPORT = None
 # Hostname and credentials for one trusted Bitcoin node ("Satoshi's client").
 # Stratum uses both P2P port (which is 8333 already) and RPC port
 BITCOIN_TRUSTED_HOST = 'localhost'
-BITCOIN_TRUSTED_PORT = 32591
+BITCOIN_TRUSTED_PORT = 32592
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
 
@@ -56,12 +56,11 @@ RSK_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 BTC_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 RSK_POLL_PERIOD = 0.5
 RSK_NOTIFY_POLICY = 1
-RSK_TRUSTED_HOST = '127.0.0.1'
+RSK_TRUSTED_HOST = 'localhost'
 RSK_TRUSTED_PORT = 4444
-RSK_TRUSTED_USER = 'admin'
-RSK_TRUSTED_PASSWORD = 'admin'
+RSK_TRUSTED_USER = 'user'
+RSK_TRUSTED_PASSWORD = 'pass'
 RSK_STRATUM_DIFFICULTY = 0.01
-
 
 # Use "echo -n '<yourpassword>' | sha256sum | cut -f1 -d' ' "
 # for calculating SHA256 of your preferred password
@@ -80,7 +79,8 @@ DATABASE_PASSWORD = '**empty**'
 
 # Pool related settings
 INSTANCE_ID = 31
-CENTRAL_WALLET = 'mugoej7QP1FWDu4DCJysmd65nRiVrrXTSq'
+# Change this setting for a valid address from BTC
+CENTRAL_WALLET = 'mgjPZrmmpAVuetUBbokcaEm9uZqVAUFvAu'
 PREVHASH_REFRESH_INTERVAL = 30 # in sec
 MERKLE_REFRESH_INTERVAL = 60 # How often check memorypool
 COINBASE_EXTRAS = '/rsk_stratum/'
