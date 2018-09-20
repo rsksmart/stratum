@@ -19,10 +19,10 @@ echo 'RSK submits ALL:'
 grep "RSK_SUBMITBLOCK" $FILE_PATH | wc -l
 
 echo 'RSK submits ACCEPTED:'
-grep "# Submit to RSK, Block" $FILE_PATH | grep "ACCEPTED" |  wc -l
+grep "Submit to RSK, Block ACCEPTED" $FILE_PATH | wc -l
 
-echo 'RSK submits REJECTED:'
-grep "# Submit to RSK, Block" $FILE_PATH | grep "REJECTED" |  wc -l
+echo 'Submit to RSK, Block FAIL:'
+grep "Submit to RSK, Block FAIL" $FILE_PATH | wc -l
 
 echo 'Shares:'
 grep "SHARE_RECEIVED_START" $FILE_PATH | wc -l
