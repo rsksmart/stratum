@@ -53,6 +53,7 @@ class BlockUpdater(object):
             start = Interfaces.timestamper.time()
             
             if prevhash and prevhash != current_prevhash:
+                logid = util.id_generator()
                 log.info("New block! Prevhash: %s" % prevhash)
                 update = True
                 log.info(json.dumps({"uuid" : logid, "rsk" : "[RSKLOG]", "tag" : "[BTC_NEW_BLOCK_PARENT]", "start" : start, "elapsed" : Interfaces.timestamper.time() - start}))
