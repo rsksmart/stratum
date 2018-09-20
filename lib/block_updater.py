@@ -50,8 +50,9 @@ class BlockUpdater(object):
                 current_prevhash = None
 
             prevhash = yield self.bitcoin_rpc.prevhash()
+            start = Interfaces.timestamper.time()
+            
             if prevhash and prevhash != current_prevhash:
-                start = Interfaces.timestamper.time()
                 logid = util.id_generator()
                 log.info("New block! Prevhash: %s" % prevhash)
                 update = True
