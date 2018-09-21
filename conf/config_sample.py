@@ -1,6 +1,6 @@
 '''
 This is example configuration for Stratum server.
-Please rename it to settings.py and fill correct values.
+Please rename it to config.py and fill correct values.
 '''
 
 # ******************** GENERAL SETTINGS ***************
@@ -51,7 +51,8 @@ BITCOIN_TRUSTED_PORT = 32591
 BITCOIN_TRUSTED_USER = 'admin'
 BITCOIN_TRUSTED_PASSWORD = 'admin'
 
-RSK_DEV_MODE = True
+# Use this settings ONLY for development
+RSK_DEV_MODE = False
 BTC_DEV_TARGET = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 RSK_STRATUM_DIFFICULTY = 0.01
 
